@@ -30,6 +30,17 @@ Optional: aluminium tape on the inside walls, as described in
 
 Wiring and pin assignments are in [../../docs/hardware.md](../../docs/hardware.md).
 
+## Mechanical reference data
+
+[ref/DIMENSIONS.md](ref/DIMENSIONS.md) collects the dimensions of the parts the case must hold:
+the XIAO ESP32S3 Sense stack, the camera modules, the FPC antenna, the AM312 PIR, the LED strip,
+the microSD card and the USB-C plug. Each value says whether it comes from an official drawing, a
+3D model, a third party or an estimate, and links its source.
+
+The datasheets and vendor CAD files themselves are not in the repository, because their licenses
+do not clearly allow redistribution. Download them from the linked sources into `ref/` (the
+directory is gitignored except for `DIMENSIONS.md`).
+
 ## Planned files
 
 - `station-case.step` and `station-case.stl`: the body, roof and window frame as printable

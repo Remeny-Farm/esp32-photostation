@@ -7,6 +7,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- Mechanical reference dimensions for the case (`hardware/case/ref/DIMENSIONS.md`).
+
 ## 0.3.0 - 2026-11-05
 
 First public release. Earlier versions were unpublished prototypes.
