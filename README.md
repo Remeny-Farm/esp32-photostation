@@ -14,12 +14,12 @@ can carry a tag, and any server that speaks the small HTTPS contract in [docs/pr
 
 ## What it does
 
-1. A PIR sensor wakes the station and opens a *visit*: the LED light turns on.
+1. A PIR sensor wakes the station and opens a *visit*.
 2. The camera takes up to 5 photos per visit and queues them on the microSD card.
 3. The always-on BLE scan supplies the advertisements seen from 5 s before the visit opened until
    it closes. The station picks the tag with the strongest **median RSSI** above a threshold and with a clear margin over
    the runner-up; otherwise the visit is `unknown`.
-4. The light turns off and a visit JSON (photos, timing, identification candidates) is written next
+4. A visit JSON (photos, timing, identification candidates) is written next
    to the photos in the SD queue.
 5. Outside visits, a background task uploads the queue over Wi-Fi to **your own server** by HTTPS:
    photos first, then the visit JSON, oldest visit first. Heartbeats with health counters go out
@@ -34,7 +34,7 @@ Firmware runs on the Arduino core for ESP32 with no external libraries. The prot
 - Seeed **XIAO ESP32S3 Sense** with an OV2640, OV3660 or OV5640 camera module
 - microSD card, FAT32
 - AM312 PIR sensor
-- LED light (PWM-dimmable)
+- Lighting: an external constant light on its own timer (not part of the station)
 - u.FL antenna on the board's connector (without it, BLE range is near zero)
 - BLE tags: any beacon that sends the advertisement described in [docs/tag-protocol.md](docs/tag-protocol.md)
 

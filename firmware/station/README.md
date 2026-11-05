@@ -1,7 +1,7 @@
 # esp32-photostation firmware
 
-Firmware for the Seeed XIAO ESP32S3 Sense. A PIR edge opens a visit: light on, 3 to 5 photos to the
-SD queue, BLE identifies the tag in front of the camera, light off, visit JSON written. A background
+Firmware for the Seeed XIAO ESP32S3 Sense. A PIR edge opens a visit: 3 to 5 photos to the
+SD queue, BLE identifies the tag in front of the camera, visit JSON written. A background
 task uploads the queue over Wi-Fi to your upload server.
 
 Design, including the SD layout and visit ids: [docs/architecture.md](../../docs/architecture.md).
@@ -101,14 +101,13 @@ mock only on a trusted network and only while testing.
 
 | Command | Effect |
 |---|---|
-| `info` | Station id, firmware, SD, BLE counters (`tag=` adverts and tags seen), Wi-Fi, config (secrets masked), upload state, PIR stuck flag, light, heap (internal free, largest block and its running minimum `int_largest_min`). |
+| `info` | Station id, firmware, SD, BLE counters (`tag=` adverts and tags seen), Wi-Fi, config (secrets masked), upload state, PIR stuck flag, heap (internal free, largest block and its running minimum `int_largest_min`). |
 | `pir` | Simulates a PIR edge (opens a visit). |
 | `snap` | Takes one photo into `/q/snap_<ms>.jpg` (refused while a visit is open; never uploaded). |
 | `ls [dir]` | Lists the files of a directory (default `/`): the first 64 with sizes, then `LS_MORE <n> not shown` and `LS_END <dir> files=<total>`. |
 | `cat <path>` | Prints the last 8 KB of a file. |
 | `benchls <n>` | Bench: creates `n` (max 1000, digits only) tiny files in `/benchls` once, reuses them later, and times one listing with the uploader's queue count. Prints `BENCHLS files=<n> ms=<t>`. Outside `/q`, so nothing is uploaded. Refused while a visit is open. |
 | `benchls clean` | Deletes `/benchls` and its files. Refused while a visit is open. |
-| `light <0-255>` | Sets the LED level. |
 | `scan` | Per tag over the last 30 s: mac, name, RSSI median, count, min, max, battery mV. |
 | `set` | Shows threshold `t` and margin `x`. |
 | `set t <dbm>` / `set x <db>` | Identification threshold (-100..-20) and margin (0..40), stored in NVS. |

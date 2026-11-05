@@ -13,7 +13,7 @@ firmware is specific to hens: any animal that carries a tag and walks into a box
 ## 1. Intent
 
 A small box stands in the animals' area with a bait bowl at the far end. One animal fits inside at
-a time. When an animal walks in, a PIR sensor wakes the station: the light ramps up, the camera
+a time. When an animal walks in, a PIR sensor wakes the station: the camera
 takes three to five photos, and the station decides from the BLE tags it heard which animal was in
 front of the camera. The photos and a visit record go to an SD card first, and from there to your
 upload server over HTTPS. The server side (gallery, review queue, per-animal profile) is yours to
@@ -40,7 +40,7 @@ Anti-goals (a failure even when it "works"):
 
 - A photo published under the wrong animal's name. `unknown` beats a guess.
 - Dozens of near-identical photos of one animal.
-- A station that scares the animals away (flashing light, noise).
+- A station that scares the animals away (noise, sudden changes at visit time).
 - A secret (Wi-Fi password, device key) in the source tree.
 
 ## 3. Constraints and facts
@@ -64,7 +64,7 @@ Anti-goals (a failure even when it "works"):
 ```
  PIR ---+                               +-> SD: /q (queue) --> uploader --HTTPS--> upload server /api/photostation/*
  BLE ---+-> visit machine -> camera     |                                              |
- light <+   (visit)        + light      +-> SD: /sent (archive)                        +-> photo attached to the animal
+              (visit)                     +-> SD: /sent (archive)                        +-> photo attached to the animal
                                                                                        +-> best photo selected
                        heartbeat every 5 minutes ---------------HTTPS----------------> +-> unknown visit -> review
 ```
@@ -83,7 +83,7 @@ libraries.
   state machine (`visit`), visit ids, SD paths and the visit JSON (`record`), and the upload
   policy, queue order and console parsing (`policy`). These modules have host tests under
   `firmware/station/test/` that run on any machine with a C++17 compiler.
-- `src/hw/`: hardware glue. Camera, light, PIR, SD storage, serial console, log, BLE scan,
+- `src/hw/`: hardware glue. Camera, PIR, SD storage, serial console, log, BLE scan,
   config (NVS), network (Wi-Fi, SNTP, HTTP, OTA) and the uploader task.
 - `station.ino`: wiring. It starts the tasks, registers the serial commands and owns the visit
   loop.
@@ -92,7 +92,7 @@ libraries.
 
 | Task | Core | Responsibility |
 |---|---|---|
-| `visit` | 1 | Ticks the visit state machine every 50 ms. Opens a visit on a PIR edge, turns the light on, captures photos into the SD queue, closes the visit, runs identification and writes the visit JSON. |
+| `visit` | 1 | Ticks the visit state machine every 50 ms. Opens a visit on a PIR edge, captures photos into the SD queue, closes the visit, runs identification and writes the visit JSON. |
 | `ble` | 0 | Keeps a continuous active scan running on the NimBLE host and prunes the tag table every 5 s. The scan callback itself runs on the NimBLE host task and only appends samples to the tag table. |
 | `upload` | 1 | Drains `/q` outside visits, sends the heartbeat, applies the retry policy and prunes `/sent`. |
 | `loop` (Arduino) | 1 | Serial console, Wi-Fi event logging, OTA handler, one BLE/heap statistics line per minute. |
@@ -107,14 +107,14 @@ gated).
 
 The machine (`src/core/visit.cpp`) is driven by a 50 ms tick and a PIR edge flag.
 
-- `IDLE` -> PIR edge -> `VISIT`: a new `visit_id` is made and the light ramps up over 300 ms.
+- `IDLE` -> PIR edge -> `VISIT`: a new `visit_id` is made.
 - Settle 1500 ms (the animal reaches the bait), then photos 1-3 at 1500 ms spacing. Photo 1
   takes four warm-up frames first so exposure and white balance settle.
 - Photos 4 and 5 come at 20 s spacing, and only if a PIR edge arrived after the previous photo.
   At most five photos per visit.
 - Close on 30 s of PIR silence (once the first three photos are taken), or a forced close after
   10 minutes. After a close the next PIR edge opens a new visit.
-- At close the light ramps down, identification runs over the visit window, and the visit JSON is
+- At close identification runs over the visit window, and the visit JSON is
   written next to the photos in `/q`.
 
 All interval comparisons use unsigned subtraction, so they survive the `millis()` wrap after
@@ -188,8 +188,7 @@ One record per visit, written at close and uploaded after the visit's photos:
     "threshold_dbm": -60,
     "margin_db": 8
   },
-  "firmware": "0.3.0",
-  "light_pwm": 180
+  "firmware": "0.3.0"
 }
 ```
 
@@ -286,5 +285,6 @@ if the board still runs.
 | Small in/out RSSI difference | Wrong or many `unknown` decisions | Calibrate `T` and `X` in the real box; if the margin stays small, add shielding or a directional antenna. |
 | Wi-Fi and BLE coexistence | Fewer BLE packets during uploads | Uploads only outside visits; check the packet count with Wi-Fi active. |
 | Dust, ammonia, humidity | Hazy window, corrosion | Cleanable window, closed electronics compartment, silica gel. |
-| The light scares the animal | Few visits | Slow 300 ms ramp, steady light during the visit, no flashing. |
+| The light scares the animal | Few visits | The station emits no light. Lighting is external and constant, so nothing changes at visit time. |
+| At night the external light is off | Dark photos | Visits, BLE identification and the visit JSON still work; only the photo content is lost. Night photos are not usable by design. |
 | TLS heap peak | Out-of-memory during a handshake | Uploads never overlap a visit; the heartbeat reports `min_heap` and `int_largest_min`, and [bench-testing.md](bench-testing.md) sets the limits. |

@@ -75,7 +75,7 @@ over 1 MiB; such a file goes to `/bad` on the card without a request.
 The visit record, sent once per visit after all of that visit's photos. The body is the JSON of
 [architecture.md section 5.5](architecture.md#55-visit-json):
 
-- `station_id`, `visit_id`, `started_at`, `ended_at`, `time_synced`, `firmware`, `light_pwm`
+- `station_id`, `visit_id`, `started_at`, `ended_at`, `time_synced`, `firmware`
 - `photos[]`: `{n, captured_at, bytes, width, height}`
 - `identification`: `decision` (`"tag"` or `"unknown"`), `tag_mac`, `tag_name`,
   `candidates[]` of `{mac, median, count, min, max}`, `threshold_dbm`, `margin_db`
@@ -92,7 +92,8 @@ repeat. The response body is `{"ok": true, "visit_id": "<id>", "incomplete": <bo
 `incomplete` is true when the JSON lists a photo the server has not received. A repeat recomputes
 it, so a later retry can show the gap closed.
 
-The server should ignore unknown keys so that the firmware can add fields later.
+The server should ignore unknown keys so that the firmware can add fields later. Firmware after
+0.3.0 no longer sends `light_pwm`; a server must not require it.
 
 ### `POST /api/photostation/heartbeat`
 

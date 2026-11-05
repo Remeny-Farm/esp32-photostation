@@ -7,6 +7,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Removed
+
+- Station light control (GPIO2 PWM, `light` console command, `light=` INFO field, `light_pwm` visit
+  JSON field). Lighting is now external.
+
 ### Added
 
 - Mechanical reference dimensions for the case (`hardware/case/ref/DIMENSIONS.md`).

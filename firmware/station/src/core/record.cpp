@@ -100,7 +100,6 @@ std::string visitJson(const VisitRecord& r) {
   }
   j += "],\"threshold_dbm\":" + std::to_string(r.thresholdDbm);
   j += ",\"margin_db\":" + std::to_string(r.marginDb) + "}";
-  j += ",\"firmware\":" + quote(r.firmware);
-  j += ",\"light_pwm\":" + std::to_string(r.lightPwm) + "}";
+  j += ",\"firmware\":" + quote(r.firmware) + "}";
   return j;
 }

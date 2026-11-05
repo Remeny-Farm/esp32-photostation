@@ -22,7 +22,7 @@ License: MIT.
 - `firmware/station/`: the production sketch (`station.ino`).
   - `src/core/`: pure C++ protocol logic (identification, upload policy, records, visit state
     machine). No Arduino or ESP-IDF headers; tested on the host in `test/`.
-  - `src/hw/`: hardware code (BLE, camera, SD, Wi-Fi, PIR, light, uploader, console).
+  - `src/hw/`: hardware code (BLE, camera, SD, Wi-Fi, PIR, uploader, console).
 - `firmware/blescan/`, `firmware/camtest/`, `firmware/sdhealth/`: bench sketches.
 - `tools/`: host Python tools (stdlib plus pyserial): `mock_server.py` (the upload server for
   tests), `provision.py`, `serial_run.py`. Run them with `python -I` so no sibling module is
