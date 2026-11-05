@@ -40,15 +40,13 @@ COLOURS = {
     "bowl": (0.15, 0.35, 0.85, 1.0),
     "head": (1.00, 0.50, 0.05, 1.0),
     "antenna": (0.85, 0.65, 0.13, 1.0),
-    "led": (0.95, 0.95, 0.80, 1.0),
     "frustum": (1.00, 0.90, 0.10, 0.25),
 }
-PH_MATERIAL = {"ph_xiao": "board", "ph_perfboard": "board", "ph_camera": "camera",
-               "ph_usb": "usb", "ph_bowl": "bowl", "ph_head": "head", "ph_antenna": "antenna",
-               "ph_led_l": "led", "ph_led_r": "led"}
+PH_MATERIAL = {"ph_xiao": "board", "ph_camera": "camera", "ph_usb": "usb", "ph_bowl": "bowl",
+               "ph_head": "head", "ph_antenna": "antenna"}
 
 MODULE_PARTS = ("module_body", "module_lid", "board_sled", "window_frame")
-MODULE_PH = ("ph_xiao", "ph_camera", "ph_usb", "ph_perfboard", "ph_led_l", "ph_led_r")
+MODULE_PH = ("ph_xiao", "ph_camera", "ph_usb")
 
 
 # --- wood --------------------------------------------------------------------------------

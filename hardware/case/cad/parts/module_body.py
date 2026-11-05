@@ -1,7 +1,7 @@
 """Camera module body (module local frame, see params.py).
 
 A five-sided PETG box, open at the rear (closed by module_lid). The front carries the lens
-bore and shroud, the two LED pockets and the guides of the window frame; the side walls carry
+bore and shroud and the guides of the window frame; the side walls carry
 the pivot and index bosses and the grooves the board sled slides in; the bottom has the USB-C
 hole, vents and the zip-tie anchor; the top has the u.FL slot.
 
@@ -10,7 +10,7 @@ the frame guides stand 5.5 mm proud of the front face, so the whole front wall w
 the air. Top down, the guides and the frame channel are vertical, and the cavity is shaped so
 nothing needs support: the bottom (now the last layers) is a 14 mm bridge between two 45 deg
 chamfers, the top corners carry 45 deg fills that also hold the lid screw pilots, and every
-feature that points down in print (guide tops, frame stop, shroud, LED pad tops, rib tops) is
+feature that points down in print (guide tops, frame stop, shroud, rib tops) is
 cut at 45 deg or stays a ledge of 1.3 mm or less.
 """
 
@@ -110,8 +110,6 @@ TOP_FILL_DROP = 3.0   # the top corner fills start this far above the sled top
 FLOOR_HALF = 7.0      # half-width of the flat bottom bridge (USB overmould is 12.4 wide)
 RIB_H = 2.0           # rib height beside the groove
 RIB_Y0_GAP = 1.8      # ribs stop short of the rear face: the lid rim (1.5) plus clearance
-LED_PAD = 1.3         # backing pad behind each LED pocket: pocket (2.5) is deeper than the wall
-WIRE_D = 3.0
 ZIP_W, ZIP_LEG, ZIP_TUNNEL = 4.0, 1.5, (4.0, 2.0)  # bar width (x), leg length (y), tunnel y x z
 VENT = (20.0, 2.0)    # bottom vent slot x, y
 VENT_PITCH = 3.5
@@ -176,19 +174,10 @@ def _sides(p):
 
 
 def _front(p):
-    """Front face: LED backing pads (inside), guides, frame stop and shroud (outside)."""
-    y0, yi = p.mod_y0, p.mod_y0 - p.wall
+    """Front face: guides, frame stop and shroud (outside)."""
+    y0 = p.mod_y0
     lx, _, lz = p.lens
-    lw, ld, lh = p.led_pocket
     parts = []
-    for s in (-1, 1):
-        x0, x1 = s * p.led_x - lw / 2 - 1.2, s * p.led_x + lw / 2 + 1.2
-        zb, zt = lz - lh / 2 - 1.2, lz + lh / 2 + 1.2
-        yb = y0 - ld - 1.2
-        pad = prism("led_pad", [(yi + E, zb), (yb, zb), (yb, zt - (yi - yb)), (yi + E, zt)],
-                    "X", min(x0, x1), max(x0, x1))
-        parts.append(pad)
-
     gy1, lip_y0 = 10.5, 9.3
     gz0, gz1 = -38.3, p.frame_top_z
     guides = None
@@ -223,7 +212,6 @@ def _cuts(p, vent_y0):
     ix = inner_x(p)
     y0, yi = p.mod_y0, p.mod_y0 - p.wall
     lx, _, lz = p.lens
-    lw, ld, lh = p.led_pocket
     c = []
     # Sled grooves behind the stop.
     for s in (-1, 1):
@@ -233,10 +221,6 @@ def _cuts(p, vent_y0):
                           (s * (p.mod_x - (8.0 + p.wall) / 2), 0, 0), "X", 32))
         c.append(mesh.cyl("index_pilot", p.index_pilot_d, 6.0 + p.wall + 2,
                           (s * (p.mod_x - (6.0 + p.wall) / 2), -p.index_r, 0), "X", 32))
-        c.append(mesh.box_span("led_pocket", (s * p.led_x - lw / 2, s * p.led_x + lw / 2),
-                               (y0 - ld, y0 + 1), (lz - lh / 2, lz + lh / 2)))
-        c.append(mesh.cyl("led_wire", WIRE_D, 3.0, (s * p.led_x, y0 - ld - 0.6,
-                                                    lz + lh / 2 - WIRE_D), "Y", 32))
     # Lens bore through wall and shroud, 45 deg entry chamfer on the inner face.
     c.append(mesh.cyl("bore", p.lens_bore_d, 10.0, (lx, y0, lz), "Y"))
     ch = 1.0
@@ -323,14 +307,12 @@ def checks(p, ob):
         if got is None or got < p.wall + 10:
             errs.append(f"bottom vent at y={y:g} is not open")
 
-    # LED pockets: 2.5 deep, 9 wide, with a wire hole into the interior.
+    # Front wall beside the lens: solid, full wall thickness (lighting is external, no pockets).
     for s in (-1, 1):
-        near(f"LED pocket depth x={s * p.led_x:g}", ray((s * p.led_x, 20, p.lens[2]), (0, -1, 0)),
-             20 - p.mod_y0 + p.led_pocket[1])
-        radial(f"LED pocket x={s * p.led_x:g}", (s * p.led_x, p.mod_y0 - 1, p.lens[2]), X,
-               p.led_pocket[0] / 2)
-        if ray((s * p.led_x, 20, p.lens[2] + p.led_pocket[2] / 2 - WIRE_D), (0, -1, 0)) is not None:
-            errs.append(f"LED wire hole at x={s * p.led_x:g} does not reach the interior")
+        near(f"front wall outer face x={s * 18:g}", ray((s * 18, 20, lz), (0, -1, 0)),
+             20 - p.mod_y0)
+        near(f"front wall inner face x={s * 18:g}", ray((s * 18, -20, lz), (0, 1, 0)),
+             20 + p.mod_y0 - p.wall)
 
     # u.FL slot in the top, open to the rear edge.
     zt = p.mod_z1 - p.wall / 2

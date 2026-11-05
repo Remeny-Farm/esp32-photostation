@@ -64,8 +64,6 @@ class P:
     lens_bore_d: float = 6.6
     shroud_od: float = 10.0
     shroud_h: float = 1.5        # proud of the body front face; touches the pane back
-    led_x: float = 18.0          # LED pockets at x = +-led_x
-    led_pocket: Vec3 = (9.0, 2.5, 26.0)  # x, depth (y), height (z)
 
     # Window frame (slides down into two guides on the body front)
     frame_w: float = 56.0
@@ -73,7 +71,6 @@ class P:
     frame_d: float = 4.0
     frame_top_z: float = 4.0
     pane: Vec3 = (20.0, 2.0, 20.0)   # acrylic pane x, thickness, z
-    diffuser_t: float = 0.48     # printed PETG skin over the LED windows
     guide_w: float = 3.0         # guide rail width beside the frame
     guide_lip: float = 1.5       # lip overlapping the frame front edge
     guide_lip_t: float = 1.2     # lip thickness (y)
@@ -91,9 +88,6 @@ class P:
     usb_hole: tuple[float, float] = (13.5, 7.5)
     ufl_slot_w: float = 3.0
     cam_module: Vec3 = (8.0, 5.3, 8.0)
-    perfboard: Vec3 = (20.0, 1.6, 30.0)
-    perf_parts_h: float = 8.0
-    led_strip: Vec3 = (8.0, 2.0, 25.0)
     silica: Vec3 = (30.0, 10.0, 20.0)
     sled_t: float = 2.0
     sled_rib_y: tuple[float, float] = (-10.8, -13.2)

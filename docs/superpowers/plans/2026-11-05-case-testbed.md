@@ -76,6 +76,10 @@ Where this section and the ones above differ, this one wins.
 - The carriage has no top bar: the module ties the cheeks together through the pivot screws. It prints upright, Z up, on its bottom bar.
 - Print orientations: module body top face down (front face down cannot work, the guides stand proud); lid outer face down, with 45 deg louvres instead of an outside hood; board sled bottom edge down, plate upright.
 
+### Revised after PR #4 (authoritative: `hardware/case/cad/params.py` and the part modules)
+
+Where this section and the ones above differ, this one wins. PR #4 removed light control from the station: lighting is external and not part of the case. So the LED pockets, their backing pads and wire holes in the body, the LED windows and diffuser skins in the window frame, the AO3400 perfboard clips and seat on the board sled, and the `ph_perfboard`, `ph_led_l` and `ph_led_r` placeholders are removed, with their parameters and checks. The window frame is solid beside the pane; the sled's rear face is plain.
+
 ---
 
 ### Task 1: Parameters, kinematics and Blender plumbing

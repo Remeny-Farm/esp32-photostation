@@ -2,11 +2,10 @@
 
 A plate that slides in from the rear with its side edges in the body's grooves until it meets
 the groove stop; the lid's push ribs hold it there. The front face carries the XIAO main PCB in
-a rimmed pocket with two edge hooks, the rear face the AO3400 perfboard in two clips.
+a rimmed pocket with two edge hooks. The rear face is plain: lighting is external, so the sled
+carries no light driver.
 
-Print orientation: bottom edge on the bed (plate upright). Rear-face-down (the plan's first
-choice) cannot work: the perfboard clips stand on the rear face and the pocket rim and hooks on
-the front, so either face would hang. Upright, the rim, hooks and clips are vertical
+Print orientation: bottom edge on the bed (plate upright). The rim and hooks are vertical
 extrusions; the only print-down faces are the 0.8 mm rim and lip ends.
 """
 
@@ -24,23 +23,12 @@ RIM_W = 1.2
 PCB_T = 1.25            # main PCB thickness (DIMENSIONS.md section 1, model; measure)
 USB_NOTCH = 5.0         # half-width of the gap in the bottom rim for the USB-C receptacle
 HOOK_LEN = 6.0          # hook length along z, centred on the pocket
-LIP = 0.7               # hook and clip lip overlap
-CLIP_T = 1.2
-CLIP_Z = (-32.0, -10.0)
-PERF_SEAT = 0.8         # ledge the perfboard stands on, at the sled bottom
+LIP = 0.7               # hook lip overlap
 E = 0.1
 
 
 def half_width(p):
     return body.inner_x(p) - p.clr
-
-
-def perfboard_box(p):
-    """(x, y, z) spans of the perfboard and its parts, on the sled rear face."""
-    px, pt, pz = p.perfboard
-    y1 = p.board_back_y - p.sled_t
-    z0 = p.sled_z[1] + PERF_SEAT
-    return ((-px / 2, px / 2), (y1 - pt - p.perf_parts_h, y1), (z0, z0 + pz))
 
 
 def build(p):
@@ -68,18 +56,6 @@ def build(p):
         parts.append(body.prism("hook_lip", [(s * (px - LIP), lip_y0), (s * (px + E), lip_y0),
                                              (s * (px + E), lip_y0 + 1.0), (s * px, lip_y0 + 1.0)],
                                 "Z", *hz))
-
-    # Rear: perfboard clips 20.4 apart with lips over the board's rear face, and a seat ledge.
-    pw, pt, _ = p.perfboard
-    cx = pw / 2 + 0.2
-    ly = y1 - pt - 0.2
-    for s in (-1, 1):
-        parts.append(mesh.box_span("clip", (s * cx, s * (cx + CLIP_T)), (ly - 1.0, y1 + E),
-                                   CLIP_Z))
-        parts.append(body.prism("clip_lip", [(s * (cx - LIP - 0.1), ly), (s * (cx + E), ly),
-                                             (s * (cx + E), ly - 1.0), (s * cx, ly - 1.0)],
-                                "Z", *CLIP_Z))
-    parts.append(mesh.box_span("perf_seat", (-cx, cx), (ly, y1 + E), (zb, zb + PERF_SEAT)))
     mesh.union(ob, *parts)
     return ob
 
@@ -107,17 +83,15 @@ def checks(p, ob):
         if got is None or got > 5 - PCB_T - 0.05:
             errs.append(f"no edge hook over the PCB at x={s:+d} ({got})")
 
-    yc = y0 - p.sled_t - p.perfboard[1] / 2
-    a, b = ray((0, yc, -21), (1, 0, 0)), ray((0, yc, -21), (-1, 0, 0))
-    near("perfboard clip spacing", None if a is None or b is None else a + b,
-         p.perfboard[0] + 0.4)
+    # Plain rear face: nothing stands behind the plate.
+    lo, hi = mesh.bbox(ob)
+    near("rear face", lo.y, y0 - p.sled_t, 0.01)
 
     ym = y0 - p.sled_t / 2
     a, b = ray((40, ym, -21), (-1, 0, 0)), ray((-40, ym, -21), (1, 0, 0))
     near("sled width = groove width - 2 clr", None if a is None or b is None else 80 - a - b,
          2 * body.inner_x(p) - 2 * 0.3)
 
-    lo, hi = mesh.bbox(ob)
     if lo.z < p.sled_z[1] - 1e-3:
         errs.append(f"sled reaches z {lo.z:.2f}, below {p.sled_z[1]:g} (USB-C overmould)")
 

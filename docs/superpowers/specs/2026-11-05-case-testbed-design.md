@@ -55,7 +55,8 @@ Anti-goals (failure even if it works technically):
 - Trigger and identification: BLE only. The tag is on the hen's back.
 - Power: 5 V / 2 A outdoor USB power supply, USB-C cable. The same cable is used for flashing.
 - Light: 5 V white LED strip (approx. 0.5 W) with a diffuser, around the camera window, so
-  that it does not shine into the lens.
+  that it does not shine into the lens. Superseded by PR #4: lighting is external and not part
+  of the case.
 - Place: run, covered place. Dust, humidity, ammonia, 42 degC in shade.
 - Hens: medium laying hybrids (approx. 2 kg, e.g. ISA Brown, Tetra).
 
@@ -97,7 +98,8 @@ Anti-goals (failure even if it works technically):
 ### 5.2 Electronics module (printed)
 
 - Closed PETG box on the outer side of the front wall. Inside: the XIAO board, the LED strip
-  driver (MOSFET, per the firmware design), the USB-C entry, one silica gel pocket.
+  driver (MOSFET, per the firmware design), the USB-C entry, one silica gel pocket. Superseded
+  by PR #4: lighting is external, so the module has no LED strip, diffuser or MOSFET.
 - **Camera head:** the front part of the module. It looks inward through the opening in the
   front wall. The camera sits in a tiltable head, with fixed positions, approx. every 15 deg,
   from horizontal downward. The camera cable is short (21.2 mm). So the XIAO board moves
@@ -157,7 +159,7 @@ Anti-goals (failure even if it works technically):
   carriage. So the 21.2 mm camera cable does not move. The microSD and the plug also keep
   their fixed place inside the module. The USB-C cable runs loosely out of the module, in a
   loop, so that tilting and sliding do not pull on it.
-- **LED driver:** one AO3400 MOSFET on a small through-hole board (approx. 20 x 30 mm of space
+- **LED driver (superseded by PR #4: lighting is external, no MOSFET in the case):** one AO3400 MOSFET on a small through-hole board (approx. 20 x 30 mm of space
   in the module), per the pin layout of the firmware design.
 - **The bowl follows the 20-30 cm rule.** "Directly in front of the front wall" means the bowl
   is fixed in the strip in front of the front wall. The exact distance comes from the

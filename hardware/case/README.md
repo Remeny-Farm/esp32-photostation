@@ -11,6 +11,9 @@ The camera looks through an opening in the front wall.
 
 v1 has no PIR. Only BLE starts a visit, so the case has no PIR mount.
 
+Lighting is external: the light is not part of the station or of this case, and it must not
+shine into the lens.
+
 The design, the owner decisions and the "done when" list are in
 [../../docs/superpowers/specs/2026-11-05-case-testbed-design.md](../../docs/superpowers/specs/2026-11-05-case-testbed-design.md).
 Wiring and pin assignments are in [../../docs/hardware.md](../../docs/hardware.md). The antenna
@@ -25,10 +28,10 @@ orientation (x by y by z, mm).
 |---|---|---|---|---|
 | `rail.stl` | 2 | Front face down, long axis flat | 24 x 249 x 9 | Vertical rail on the outside of the front wall. A slot guides the carriage tongue and the M5 bolt. Tick marks every 10 mm. |
 | `carriage.stl` | 1 | Upright, Z up, bottom bar on the bed | 136 x 28.5 x 102 | Rides both rails. Its two cheeks hold the module on the pivot and on the tilt index holes. |
-| `module_body.stl` | 1 | Top face down | 64 x 49.5 x 81 | Box for the camera, the LED strips and the electronics. Open at the rear. |
+| `module_body.stl` | 1 | Top face down | 64 x 49.5 x 81 | Box for the camera and the electronics. Open at the rear. |
 | `module_lid.stl` | 1 | Outer face down | 64 x 78 x 28.4 | Closes the rear. Holds the silica gel bag and pushes the sled to its stop. Louvres instead of a hood. |
-| `board_sled.stl` | 1 | Bottom edge down, plate upright | 58.6 x 7.2 x 26 | Carries the XIAO board on its front and the AO3400 perfboard on its rear. |
-| `window_frame.stl` | 1 | Front face down | 56 x 45.5 x 4 | Holds the acrylic pane and the LED diffuser skins. Slides down into the guides on the body. |
+| `board_sled.stl` | 1 | Bottom edge down, plate upright | 58.6 x 4.4 x 26 | Carries the XIAO board on its front. |
+| `window_frame.stl` | 1 | Front face down | 56 x 45.5 x 4 | Holds the acrylic pane. Slides down into the guides on the body. |
 | `bowl_holder.stl` | 1 | Flat, ring on the bed | 174.4 x 183.6 x 20 | Ring with three screw tabs. Its bore tapers with the bowl wall, so the bowl seats in it. Fixes the bowl in one place. |
 | `antenna_holder.stl` | 1 | Pocket side up | 50 x 130 x 4 | Plate under the roof for the FPC antenna. Slots let you move it back and forth. |
 | `cable_clip.stl` | 3 | Groove side up | 12 x 20 x 6 | Guides the u.FL extension cable along the roof. |
@@ -46,8 +49,6 @@ Every part fits the 250 mm limit of the P1S bed and prints without supports.
 - Print the three coupons first. Check the sliding fits (rail and tongue, frame in the guides, sled
   in the grooves). The design assumes 0.3 mm clearance per side. If a fit is too tight or too
   loose, change `clr` in `cad/params.py` and rebuild (see Rebuilding).
-- The window frame prints with its front face down, so the first three layers are the 0.48 mm
-  diffuser skins over the LED windows.
 
 ## Hardware (BOM)
 
@@ -61,8 +62,6 @@ Every part fits the 250 mm limit of the P1S bed and prints without supports.
 | Clear acrylic or PC pane, 20 x 20 x 2 mm | 1 | Window in front of the lens |
 | Zip tie | 1 | Strain relief for the USB-C cable |
 | Silica gel bag, 30 x 20 x 10 mm | 1 | In the lid cage |
-| AO3400 MOSFET on a 20 x 30 mm perfboard | 1 | LED driver (per the pin layout in `docs/hardware.md`) |
-| 5 V LED strip, 25 mm pieces | 2 | In the two pockets on the module front |
 | u.FL (IPEX) 1.13 extension cable | 1 | Module to antenna. See the length warning below. |
 | Seeed 2.4 GHz FPC antenna | 1 | Already part of the station |
 | Plywood, 12 mm | 1 set | Corridor. See the cut list. |
@@ -115,26 +114,23 @@ Openings and drill positions. Measure each one from the edges named in the note.
    slot.
 3. Push the carriage onto the two bolts. The tongues enter the slots. Add the washers and the wing
    nuts, but do not tighten them.
-4. Put the XIAO board into the pocket on the front of the sled. Put the AO3400 perfboard into the
-   two clips on the rear of the sled.
-5. Put the LED strips into the two pockets on the front of the body. Connect the strips to the
-   perfboard.
-6. Slide the sled into the grooves in the body from the rear, until it stops. Leave the USB-C hole
+4. Put the XIAO board into the pocket on the front of the sled.
+5. Slide the sled into the grooves in the body from the rear, until it stops. Leave the USB-C hole
    at the bottom free.
-7. Put the silica gel bag into the cage of the lid. Fit the lid with the two M3 screws.
-8. Press the acrylic pane into the window frame. Slide the frame down into the guides on the body
+6. Put the silica gel bag into the cage of the lid. Fit the lid with the two M3 screws.
+7. Press the acrylic pane into the window frame. Slide the frame down into the guides on the body
    front, from above.
-9. Hold the module between the carriage cheeks. Fit the two M4 pivot screws into the side bosses.
-10. Fit one M3 index screw through the cheek hole for the tilt you want (0, 15, 30 or 45 degrees).
-11. Fit the antenna holder under the roof with the two M4 nylon bolts and nylon wing nuts. Stick the
+8. Hold the module between the carriage cheeks. Fit the two M4 pivot screws into the side bosses.
+9. Fit one M3 index screw through the cheek hole for the tilt you want (0, 15, 30 or 45 degrees).
+10. Fit the antenna holder under the roof with the two M4 nylon bolts and nylon wing nuts. Stick the
     FPC antenna into its pocket.
-12. Run the u.FL extension cable from the module top slot, up outside the front wall, over the roof
+11. Run the u.FL extension cable from the module top slot, up outside the front wall, over the roof
     and through the D6 roof hole. Lay it along the underside of the roof in the three clips to the
     antenna holder.
-13. Bring the USB-C cable up through the bottom hole of the module. Fix it to the anchor bar with
+12. Bring the USB-C cable up through the bottom hole of the module. Fix it to the anchor bar with
     the zip tie. Let it hang in a drip loop below the anchor.
-14. Fit the bowl holder on the floor with three wood screws. Put the bowl into it.
-15. Set the camera height and tilt (next section) and tighten the wing nuts.
+13. Fit the bowl holder on the floor with three wood screws. Put the bowl into it.
+14. Set the camera height and tilt (next section) and tighten the wing nuts.
 
 ## Setting the camera
 
@@ -161,7 +157,7 @@ To clean the window, lift the window frame straight up out of its guides.
 
 ## Limits found
 
-- The head is about 190 to 270 px wide in a 2048 px image (188 px at the high position, 272 px at
+- The head is about 190 to 270 px wide in a 2048 px image (189 px at the high position, 273 px at
   the low one). For a portrait, crop the image.
 - At the high position (tilt 45) the module clears the wall by only 1.0 mm.
 - The window frame lifts out only at tilt 15 or less.
@@ -176,8 +172,7 @@ these with calipers on the real parts, then change `cad/params.py` and rebuild:
 2. The real height of the XIAO stack (wiki: 15 mm, model: 13.96 mm) and the board thickness.
 3. How far the microSD card sticks out of the expansion board, with a card inserted.
 4. The head length and width of the USB-C plug, and the cable diameter.
-5. The width and thickness of the LED strip, and the cutting pitch.
-6. The real size of the antenna and the length of its cable.
+5. The real size of the antenna and the length of its cable.
 
 ## Rebuilding
 

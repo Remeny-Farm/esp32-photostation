@@ -1,8 +1,8 @@
 """Removable window frame of the camera module (module local frame, see params.py).
 
 It slides down into the two guides on the body front. An acrylic pane sits in a pocket that
-opens to the back (towards the lens); the 0.5 mm lip in front retains it. The LED windows are
-cut from the back and leave a thin printed skin at the front that acts as the diffuser.
+opens to the back (towards the lens); the 0.5 mm lip in front retains it. Beside the pane the
+frame is solid: lighting is external, so the frame carries no light windows.
 """
 
 import math
@@ -10,8 +10,8 @@ import math
 import mesh
 from mathutils import Matrix
 
-# Front face (+y) on the bed: the diffuser skins are the first layers (0.48 mm = three
-# 0.16 mm layers) and the pane pocket opens upward.
+# Front face (+y) on the bed: the lip in front of the pane is the first layers and the pane
+# pocket opens upward.
 PRINT_ROT = (-90.0, 0.0, 0.0)
 COUNT = 1
 
@@ -22,7 +22,7 @@ def _dims(p):
     y0 = p.mod_y0
     y1 = y0 + p.frame_d
     z1 = p.frame_top_z
-    zc = p.lens[2]                       # pane and LED windows are centred on the lens
+    zc = p.lens[2]                       # the pane is centred on the lens
     half = p.pane[0] / 2 + p.press       # pocket half-size: pane plus a press fit per side
     # The pocket is deep enough for the pane plus the shroud that stands proud under it.
     pocket_y1 = y0 + p.pane[1] + p.shroud_h
@@ -59,11 +59,6 @@ def build(p):
     cw = p.shroud_od / 2 + p.clr
     mesh.cut(ob, mesh.box_span("shroud_channel", (-cw, cw), (y0 - OVER, y0 + p.shroud_h + p.clr),
                                (z1 - p.frame_h - OVER, zc - half + 1.0)))
-
-    lw, lh = p.led_pocket[0], p.led_pocket[2]
-    for s in (-1, 1):
-        mesh.cut(ob, mesh.box_span("led", (s * p.led_x - lw / 2, s * p.led_x + lw / 2),
-                                   (y0 - OVER, y1 - p.diffuser_t), (zc - lh / 2, zc + lh / 2)))
     return ob
 
 
@@ -105,14 +100,15 @@ def checks(p, ob):
         if _d(ob, o, (0, 1, 0)) is None:
             errs.append(f"front aperture wider than {2 * ap} in {axis}")
 
-    # Diffuser skin at both LED window centres: front face minus window floor.
+    # Solid beside the pane: full frame thickness where the old light windows were.
     for s in (-1, 1):
-        x = s * p.led_x
-        floor = _d(ob, (x, y0 - 5, zc), (0, 1, 0))
-        top = _d(ob, (x, y1 + 5, zc), (0, -1, 0))
-        expect(f"diffuser skin at x={x:g}",
-               None if floor is None or top is None else (y1 + 5 - top) - (y0 - 5 + floor),
-               0.48)  # three 0.16 mm layers, literal on purpose: it is the optical spec
+        x = s * 18.0
+        back = _d(ob, (x, y0 - 5, zc), (0, 1, 0))
+        front = _d(ob, (x, y1 + 5, zc), (0, -1, 0))
+        expect(f"solid frame at x={x:g}",
+               None if back is None or front is None else (y1 + 5 - front) - (y0 - 5 + back),
+               p.frame_d)
+        expect(f"frame back face at x={x:g}", back, 5.0)
 
     # Shroud channel: floor at shroud_h + clr, open at the bottom, joined to the pocket.
     floor = _d(ob, (0, y0 - 5, -34.0), (0, 1, 0))

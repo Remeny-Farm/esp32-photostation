@@ -13,7 +13,6 @@ part outside the plate.
 import bpy
 
 import mesh
-from parts import board_sled as sled
 from parts import module_body as body
 
 PRINT_ROT = (90.0, 0.0, 0.0)
@@ -23,10 +22,10 @@ RIM_T = 1.6          # rim thickness (4 lines)
 RIM_H = 1.5
 CAGE_T = 1.2         # cage wall
 CAGE_IN = (31.0, 20.5, 10.5)  # silica bag 30 x 20 x 10 (x, y, z) plus 0.5 to slide it in
-CAGE_Z0 = -49.0      # cage inner bottom: above the bottom chamfers, below the perfboard
+CAGE_Z0 = -49.0      # cage inner bottom: above the bottom chamfers
 SLOT_W = 2.0
 GRILLE_X = (-12.5, -7.5, -2.5, 2.5, 7.5, 12.5)
-PUSH_X = (23.0, 25.0)  # push ribs: clear of the perfboard clips and the side-wall ribs
+PUSH_X = (23.0, 25.0)  # push ribs: clear of the side-wall ribs
 PUSH_Z = (-30.0, -12.0)
 LOUVRE_Z = (-3.2, -7.7, -12.2)  # outer bottom edge of each vent
 LOUVRE_X = 10.0
@@ -136,11 +135,7 @@ def checks(p, ob):
     if v > 1e-3:
         errs.append(f"silica bag 30 x 20 x 10 overlaps the cage by {v:.2f} mm3")
 
-    # Nothing of the lid may meet the perfboard (with its parts) or the body.
-    perf = sled.perfboard_box(p)
-    v = _overlap(ob, mesh.box_span("perf_probe", *perf))
-    if v > 1e-3:
-        errs.append(f"lid meets the perfboard space: {v:.2f} mm3")
+    # Nothing of the lid may meet the body.
     v = _overlap(ob, body.build(p))
     if v > 1e-3:
         errs.append(f"lid meets the body: {v:.2f} mm3")

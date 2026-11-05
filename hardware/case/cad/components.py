@@ -20,7 +20,6 @@ if str(HERE) not in sys.path:
 
 import mesh  # noqa: E402
 from params import P, head_center  # noqa: E402
-from parts import board_sled  # noqa: E402
 
 COLLECTION = "placeholders"
 
@@ -82,23 +81,7 @@ def build_module_parts(p: P):
     cable = mesh.cyl("ph_usb_cable", p.usb_cable_d, cable_len, (cx, cy, usbc_z0 - ml - cable_len / 2))
     mesh.union(mould, cable)
 
-    # Perfboard on the rear face of the sled, standing on the sled's seat ledge (the same
-    # place board_sled.perfboard_box gives the lid checks), with its component block behind it.
-    pw, pt, ph = p.perfboard
-    sled_rear = p.board_back_y - p.sled_t
-    zc = board_sled.perfboard_box(p)[2][0] + ph / 2
-    perf = mesh.box_span("ph_perfboard", (-pw / 2, pw / 2), (sled_rear - pt, sled_rear),
-                         (zc - ph / 2, zc + ph / 2))
-    blk = mesh.box_span("ph_perf_parts", (-8.0, 8.0), (sled_rear - pt - p.perf_parts_h, sled_rear - pt),
-                        (zc - 10.0, zc + 10.0))
-    mesh.union(perf, blk)
-
-    # LED strips in the front pockets, 0.3 mm behind the body front face.
-    sw, st, sl = p.led_strip
-    y1 = p.mod_y0 - 0.3
-    leds = [mesh.box_span(n, (sx - sw / 2, sx + sw / 2), (y1 - st, y1), (lz - sl / 2, lz + sl / 2))
-            for n, sx in (("ph_led_l", -p.led_x), ("ph_led_r", p.led_x))]
-    return _collect([xiao, cam, mould, perf] + leds)
+    return _collect([xiao, cam, mould])
 
 
 def build_world_parts(p: P):
@@ -145,7 +128,7 @@ def main():
         print(f"{ob.name}: bbox ({lo.x:.2f}, {lo.y:.2f}, {lo.z:.2f}) .. ({hi.x:.2f}, {hi.y:.2f}, {hi.z:.2f})")
 
     byname = {o.name: o for o in mod}
-    names = ["ph_xiao", "ph_camera", "ph_usb", "ph_perfboard"]
+    names = ["ph_xiao", "ph_camera", "ph_usb"]
     ok = True
     for i, a in enumerate(names):
         for b in names[i + 1:]:
