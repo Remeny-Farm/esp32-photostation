@@ -56,31 +56,33 @@ class P:
     # Module (local frame)
     pivot_y: float = -23.5       # world Y of the pivot axis
     mod_x: float = 32.0          # body spans x -mod_x .. +mod_x
-    mod_y0: float = 2.0          # body front face
-    mod_y1: float = -42.0        # body rear face (open, closed by the lid)
+    mod_y0: float = 5.0          # body front face (pivot hole needs 3 mm of wall ahead)
+    mod_y1: float = -39.0        # body rear face (open, closed by the lid)
     mod_z0: float = -72.0        # body bottom
     mod_z1: float = 6.0          # body top
-    lens: Vec3 = (0.0, 1.0, -20.0)   # lens front centre
+    lens: Vec3 = (0.0, 4.0, -20.0)   # lens front centre, 1 mm behind the body front
     lens_bore_d: float = 6.6
     shroud_od: float = 10.0
-    shroud_h: float = 2.0        # proud of the body front face
+    shroud_h: float = 1.5        # proud of the body front face; touches the pane back
     led_x: float = 18.0          # LED pockets at x = +-led_x
     led_pocket: Vec3 = (9.0, 2.5, 26.0)  # x, depth (y), height (z)
 
     # Window frame (slides down into two guides on the body front)
     frame_w: float = 56.0
-    frame_h: float = 40.0
+    frame_h: float = 42.0        # frame spans z frame_top_z .. frame_top_z - frame_h
     frame_d: float = 4.0
     frame_top_z: float = 4.0
     pane: Vec3 = (20.0, 2.0, 20.0)   # acrylic pane x, thickness, z
     diffuser_t: float = 0.48     # printed PETG skin over the LED windows
     guide_w: float = 3.0         # guide rail width beside the frame
-    guide_lip: float = 1.5       # lip overlapping the frame edge
+    guide_lip: float = 1.5       # lip overlapping the frame front edge
+    guide_lip_t: float = 1.2     # lip thickness (y)
+    grip: Vec3 = (12.0, 2.0, 4.0)  # pull tab on the frame top: x, y, z
 
     # Electronics inside the module (local frame; DIMENSIONS.md section 1)
     board_w: float = 17.78
     board_len: float = 20.95
-    board_back_y: float = -14.0  # main PCB bottom face
+    board_back_y: float = -11.0  # main PCB bottom face
     board_z1: float = -12.0      # u.FL end (top)
     stack_h: float = 15.0
     usbc_overhang: float = 1.53
@@ -94,7 +96,7 @@ class P:
     led_strip: Vec3 = (8.0, 2.0, 25.0)
     silica: Vec3 = (30.0, 10.0, 20.0)
     sled_t: float = 2.0
-    sled_rib_y: tuple[float, float] = (-13.8, -16.2)
+    sled_rib_y: tuple[float, float] = (-10.8, -13.2)
     sled_z: tuple[float, float] = (-8.0, -34.0)
 
     # Fasteners
@@ -126,7 +128,7 @@ class P:
     carr_x: float = 68.0
     carr_z: tuple[float, float] = (-84.0, 16.0)
     cheek_x: tuple[float, float] = (33.0, 39.0)
-    cheek_y: tuple[float, float] = (6.5, -20.5)
+    cheek_y: tuple[float, float] = (8.0, -20.5)
     cheek_z: tuple[float, float] = (-8.0, 18.0)
     tongue: tuple[float, float] = (5.0, 2.0)       # width, height into the slot
     tongue_len: float = 60.0

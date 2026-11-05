@@ -55,6 +55,17 @@ Carriage: a frame plate Y −21 … −27, X ±68, Z `pivot −84 … pivot +16`
 
 Bowl holder: ring inner Ø `bowl_d_base + 2`, wall 4, height 20, three tabs with Ø4.5 holes. Antenna holder: plate `130 (Y) × 50 (X) × 4`, underside pocket `38 × 18 × 1.2` for the FPC radiator, coax groove, two `4.5 × 100` slots for M4 nylon bolts; default antenna centre world `(0, 300, 400)`. Cable clip: `20 × 12 × 6`, 2 mm coax channel, one Ø4.5 hole (×3).
 
+### Revised in Task 1 (authoritative: `hardware/case/cad/params.py`)
+
+The pivot hole needed 3 mm of wall ahead of it, so the module moved forward in its own frame: body `y +5 … −39`, lens front `(0, +4, −20)`, main PCB back `y −11`, sled ribs `y −10.8 … −13.2`, shroud 1.5 proud, cheeks `y +8 … −20.5`. Where this section and the one above differ, this one wins.
+
+Window frame and guides (shared by Task 3 and Task 4, exact):
+- Frame: `x ±28`, `y +5 … +9`, `z +4 … −38`. Grip tab `x ±6`, `y +5 … +7`, `z +4 … +8`.
+- Pane pocket, open to the back: `x ±10.1`, `z −20 ± 10.1`, `y +5 … +8.5`; the pane sits at `y +6.5 … +8.5` and touches the shroud top; front aperture `x ±9`, `z −20 ± 9`.
+- LED windows: `x ±18 ± 4.5`, `z −20 ± 13`, cut from the back to `y = 9 − 0.48`.
+- Guides on the body: `|x| 28.3 … 31.3`, `y +5 … +10.5`, `z −38.3 … +4`; lip `|x| 26.5 … 31.3`, `y +9.3 … +10.5`; bottom stop `x ±31.3`, `y +5 … +9.3`, `z −40.3 … −38.3`. The guides end at `z +4`, not at the body top: at 45° tilt anything higher touches the wall.
+- The frame slides out upwards at tilts 0 and 15; at 30 and 45 the operator first sets the tilt to 0 (one index screw).
+
 ---
 
 ### Task 1: Parameters, kinematics and Blender plumbing
