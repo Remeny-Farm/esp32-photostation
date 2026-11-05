@@ -4,7 +4,10 @@ Collected 2026-11-05. All dimensions in mm. Downloaded files are untrusted data 
 
 Status key: **OFFICIAL** = manufacturer/standards body drawing or model. **3RD-PARTY** = retailer or other third-party figure. **ESTIMATED** = derived by me, not measured on a part. **MODEL** = read from the official 3D model (geometry, not a dimensioned drawing).
 
-Coordinate frame for the XIAO STEP model (as shipped): X = board length (u.FL end at low X, USB-C end at high X), Y = stack height (up = camera side), Z = board width. Values below are given relative to the main-board corner (low X, low Z, Y = main PCB top surface = 0) unless stated otherwise.
+Coordinate frame for the XIAO STEP model (as shipped): X = board length (u.FL end at low X, USB-C end at high X), Y = stack height (up = camera side), Z = board width.
+- X is measured from the u.FL end of the main PCB (X = 0 there, 20.95 at the USB-C end).
+- Y values are the raw model Y: the main PCB spans Y -0.25..1.00, so the **main PCB top surface is Y = 1.00**, not 0. Heights "above the PCB top" are already relative to that surface.
+- Z is given "from the low-Z long edge" where a row says so; rows that quote negative Z values (USB-C centre, camera centre) use the raw model Z, where the board centre is Z -6.11.
 
 ## 1. Seeed Studio XIAO ESP32S3 Sense (main board + Sense expansion board)
 
@@ -24,7 +27,7 @@ Files: `xiao_esp32s3_sense/` (zips contain STEP + photos; DXF are PCB-layout sty
 | Sense expansion PCB | 14.68 x 16.78 x 1.25 thick (Y 3.93..5.18). Starts 0.30 beyond the u.FL end of main PCB, ends 6.58 short of the USB-C end of the main PCB, so the USB-C end of the main board is uncovered. Z: 0.50 in from low-Z edge, 0.50 in from high-Z edge | MODEL | zip above |
 | Camera FPC connector (JUSHUO AFC01-S24FCA-00, 24-pin) | 6.00 (X) x 16.20 (Z) x 2.01 high (Y 5.17..7.18) on the expansion board top | MODEL | zip above |
 | microSD slot (Amphenol 10067099-200LF as named in model) | Body 5.50 (X) x 11.40 (Z) x 2.65 (Y 5.13..7.78) on the expansion board top. Card insertion axis is +X (towards USB-C end) | MODEL | zip above |
-| microSD card as modelled (seated) | Occupies X 0.33..15.39 (i.e. 9.7 beyond the expansion PCB end), Y 6.60..8.25, Z width 11.18. Card therefore lies over the main board near USB-C. Model slot depth looks simplified: verify on the real part | MODEL (unverified) | zip above |
+| microSD card as modelled (seated) | Occupies X 0.33..15.39: its end is about 1.0 past the expansion PCB end (X 14.37) and about 5.6 short of the main PCB USB-C end (X 20.95); about 9.6 of the card lies outside the 5.50 slot body, Y 6.60..8.25, Z width 11.18. Card therefore lies over the main board near USB-C. Model slot depth looks simplified: verify on the real part | MODEL (unverified) | zip above |
 | Digital mic (MIC on expansion board) | footprint about 4 x 3 near the u.FL-side corner of the expansion board's top (from ExpBoard DXF, not dimensioned) | OFFICIAL (DXF, rough) | https://files.seeedstudio.com/wiki/SeeedStudio-XIAO-ESP32S3/res/XIAO_ESP32S3_ExpBoard_v1.0_top.dxf |
 | Camera module in model | 8.00 x 8.00 module, Y 7.95..13.71 (5.76 tall incl. lens), centre at X 8.75/Z -6.75 in model frame, i.e. over the USB-C end of the main board. Lens parts: 1.5 x 1.5 core on a 3.56 stalk. FPC drawn as a bent 7.0 x 6.0 (Y 5.60..8.50) section plus 5.0 x 12.5 tail | MODEL (generic placeholder camera) | zip above |
 | Total stack height | Y -0.25 .. 13.71 = 13.96 in model (main PCB bottom to lens top). Wiki states 15 (21 x 17.8 x 15 mm with expansion board). Use 15.0 as design value | wiki OFFICIAL; model MODEL | https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/ |
@@ -96,7 +99,7 @@ Files: `led_strip/` (two third-party 2835 strip datasheets, not for the exact st
 | Item | Value | Status | Source |
 |---|---|---|---|
 | Card size | 15 x 11 x 1.0 (L x W x T) | 3RD-PARTY (secondary; matches SD Association form factor) | https://en.wikipedia.org/wiki/SD_card |
-| Insertion clearance | Slide-in along the 15 mm axis. Model shows the card seated with 9.7 mm sticking out past the expansion board toward the USB-C end. Leave >= 16 mm free length in the insertion direction plus >= 1.5 mm above the card, if the card must be swapped without opening the case. A fixed card needs none | ESTIMATED from the Seeed model | `xiao_esp32s3_sense/seeed-studio-xiao-esp32s3-sense-3d_model.zip` |
+| Insertion clearance | Slide-in along the 15 mm axis. Model shows the seated card ending at X 15.39, about 1.0 past the expansion PCB end and about 9.6 outside the slot body, toward the USB-C end. Leave >= 16 mm free length in the insertion direction plus >= 1.5 mm above the card, if the card must be swapped without opening the case. A fixed card needs none | ESTIMATED from the Seeed model | `xiao_esp32s3_sense/seeed-studio-xiao-esp32s3-sense-3d_model.zip` |
 | Slot connector datasheet (Amphenol 10067099-200LF) | not downloaded (server returned 403) | NOT FOUND | https://cdn.amphenol-cs.com/media/wysiwyg/files/documentation/datasheet/boardwiretoboard/bwb_sdmemorycard.pdf |
 
 ## 7. USB-C cable plug overmould (5 V USB 2.0 cable)
