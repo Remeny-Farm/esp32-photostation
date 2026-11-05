@@ -12,12 +12,13 @@ case.
 
 ## Checks before a pull request
 
-Run all three; CI runs the same.
+Run all four; CI runs the same.
 
 ```sh
 bash firmware/station/test/run.sh
 (cd tools && python3 -m unittest test_mock_server)
 arduino-cli compile --profile xiao_esp32s3 firmware/station
+python3 -m unittest discover -s hardware/case/cad -p 'test_*.py'
 ```
 
 `run.sh [name]` runs one suite (`ident`, `policy`, `record`, `visit`) or all of them.

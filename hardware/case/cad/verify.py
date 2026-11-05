@@ -180,40 +180,78 @@ def check_bowl(p, objs):
 
 
 CROP = 0.6   # central share of the image (in tangent space) that must be unobstructed
+SCREW_WOOD_MIN = 5.0   # plywood between the opening (bevel included) and a rail screw hole
+
+
+def _field_rays(p, state):
+    """Lens start point and the ray direction for image coordinates (u, v) in -1..1."""
+    z = RAIL_PIVOT_Z[state]
+    tilt = nearest_tilt(aim_tilt(p, z))
+    lens, fwd = lens_pose(p, z, tilt)
+    fwd = Vector(fwd)
+    up = Matrix.Rotation(math.radians(-tilt), 3, "X") @ Vector((0, 0, 1))
+    th = math.tan(math.radians(p.hfov / 2))
+    tv = math.tan(math.radians(vfov_deg(p) / 2))
+    return tilt, Vector(lens) + fwd * 0.5, \
+        lambda u, v: (fwd + Vector((u * th, 0, 0)) + up * (v * tv)).normalized()
 
 
 def check_field(p, objs):
-    """Grid of rays over the frustum: the central crop must be clear of the front wall,
-    carriage, rails and the module itself; the blocked share of the frame is reported."""
-    obstacles = ([o for n, o in objs.items() if n.startswith("wood_") and n != "wood_floor"]
-                 + [objs["carriage"], objs["rail_L"], objs["rail_R"]]
+    """Rays over the whole frustum, no distance cap. The obstacles are the front wall, the
+    carriage, both rails and the module parts; the side walls, roof and floor are the scene.
+    The central crop must be clear: the grid points inside it and its boundary (where the
+    corners are, which the grid only nears). The blocked share of the frame is reported."""
+    obstacles = ([objs["wood_front"], objs["carriage"], objs["rail_L"], objs["rail_R"]]
                  + [objs[n] for n in assembly.MODULE_PARTS])
-    th = math.tan(math.radians(p.hfov / 2))
-    tv = math.tan(math.radians(vfov_deg(p) / 2))
     n = 24
+    grid = [2 * i / (n - 1) - 1 for i in range(n)]
+    edge = [CROP * (2 * k / 8 - 1) for k in range(9)]
+    boundary = sorted({(a, s * CROP) for a in edge for s in (-1, 1)}
+                      | {(s * CROP, a) for a in edge for s in (-1, 1)})
     errs = []
-    for state, z in RAIL_PIVOT_Z.items():
-        tilt = nearest_tilt(aim_tilt(p, z))
+    for state in RAIL_PIVOT_Z:
+        tilt, start, ray = _field_rays(p, state)
         assembly.place(objs, p, state, tilt)
-        lens, fwd = lens_pose(p, z, tilt)
-        fwd = Vector(fwd)
-        up = Matrix.Rotation(math.radians(-tilt), 3, "X") @ Vector((0, 0, 1))
-        start = Vector(lens) + fwd * 0.5
-        blocked = crop_blocked = 0
-        for i in range(n):
-            for j in range(n):
-                u, v = 2 * i / (n - 1) - 1, 2 * j / (n - 1) - 1
-                d = (fwd + Vector((u * th, 0, 0)) + up * (v * tv)).normalized()
-                # Only obstacles within the first 60 mm block the view; the side walls
-                # and roof further in are the scene itself.
-                if any(mesh.ray_hits(ob, start, d, 60.0) is not None for ob in obstacles):
+
+        def blocker(u, v):
+            d = ray(u, v)
+            return next((ob.name for ob in obstacles if mesh.ray_hits(ob, start, d) is not None),
+                        None)
+        blocked, crop_hits = 0, []
+        for u in grid:
+            for v in grid:
+                who = blocker(u, v)
+                if who:
                     blocked += 1
-                    crop_blocked += abs(u) <= CROP and abs(v) <= CROP
-        print(f"info field {state} tilt {tilt}: {100 * blocked / n / n:.0f}% of the frame "
-              f"blocked, {crop_blocked} rays in the central {CROP:.0%} crop")
-        if crop_blocked:
-            errs.append(f"{state} tilt {tilt}: {crop_blocked} rays blocked in the central crop")
+                    if abs(u) <= CROP and abs(v) <= CROP:
+                        crop_hits.append((u, v, who))
+        crop_hits += [(u, v, who) for u, v in boundary if (who := blocker(u, v))]
+        print(f"info field {state} tilt {tilt}: {100 * blocked / n / n:.1f}% of the frame "
+              f"blocked, {len(crop_hits)} rays blocked in the central {CROP:.0%} crop")
+        if crop_hits:
+            errs.append(f"{state} tilt {tilt}: {len(crop_hits)} crop rays blocked, e.g. "
+                        + ", ".join(f"(u {u:+.2f}, v {v:+.2f}) by {w}" for u, v, w in crop_hits[:4]))
     report(f"central {CROP:.0%} of the image is clear at every rail state", errs)
+
+
+def check_screw_wood(p, objs):
+    """Plywood between each rail screw hole and the opening, measured on the wood_front mesh
+    from the hole edge towards the opening at the outer face and at the inner face (where
+    the bevel takes the most)."""
+    front = objs["wood_front"]
+    errs = []
+    worst = 1e9
+    for s in (-1, 1):
+        x = s * (p.rail_x - p.wood_screw_d / 2)
+        for z in load("rail")._frame(p)["feet"]:
+            for y in (-p.t_wood + 0.01, -0.01):
+                d = mesh.ray_hits(front, (x, y, z), (-s, 0, 0))
+                worst = min(worst, 1e9 if d is None else d)
+                if d is None or d < SCREW_WOOD_MIN:
+                    errs.append(f"rail screw at x={s * p.rail_x:g} z={z:g}, y={y:g}: "
+                                f"{d if d is None else round(d, 2)} mm of wood to the opening")
+    report(f"rail screw holes keep >= {SCREW_WOOD_MIN:g} mm of plywood to the opening "
+           f"(nearest {worst:.2f} mm)", errs)
 
 
 def check_frame_removal(p, objs):
@@ -322,6 +360,7 @@ def main():
     check_placeholders(p, objs)
     check_visibility(p, objs)
     check_field(p, objs)
+    check_screw_wood(p, objs)
     check_bowl(p, objs)
     check_frame_removal(p, objs)
     check_metal(p, objs)

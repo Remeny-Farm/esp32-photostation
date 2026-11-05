@@ -36,7 +36,10 @@ class P:
     inner_w: float = 250.0
     inner_h: float = 400.0
     inner_len: float = 650.0
-    open_w: float = 80.0         # front-wall opening, centred on X; leaves 16 mm of wood beside the rail screws
+    open_w: float = 80.0         # front-wall opening, centred on X
+    open_bevel: float = 6.5      # 45 deg bevel on the inner edges of the sides and bottom: clears
+                                 # the central crop at the high state (needs 6.1) and leaves
+                                 # 7.25 mm of wood beside the rail screw holes
     open_z0: float = 30.0
     open_z1: float = 375.0       # high rail, tilt 15: the window frame lifts out up to z 369
     roof_hole_y: float = 10.0    # u.FL extension passes the roof here
@@ -102,7 +105,7 @@ class P:
     lid_screw_pilot_d: float = 2.6
     lid_screw_clear_d: float = 3.3
 
-    # Rails (world frame, +X rail; the other is mirrored)
+    # Rails (world frame, +X rail; the other is the same print turned end for end)
     rail_x: float = 56.0
     rail_w: float = 24.0
     rail_d: float = 9.0          # Y -t_wood .. -t_wood - rail_d
@@ -111,7 +114,8 @@ class P:
     slot_w: float = 5.5
     bolt_d: float = 5.0
     bolt_dz: float = -40.0       # bolt Z relative to the pivot
-    slot_z0: float = 73.5        # slot = bolt travel (190) + the tongue (18) + end radii
+    slot_z0: float = 73.5        # slot (213) = bolt travel (190) + the tongue (18) + 2.5 per end,
+                                 # so the square tongue corners clear the rounded slot ends
     slot_z1: float = 286.5
     rail_foot: float = 18.0
     wood_screw_d: float = 4.5

@@ -99,11 +99,19 @@ def copy(ob, name=None):
     return c
 
 
-def mirror_x(ob, name=None):
-    c = copy(ob, name)
-    c.data.transform(Matrix.Diagonal((-1.0, 1.0, 1.0, 1.0)))
-    c.data.flip_normals()
-    return c
+def loft(name, rings):
+    """Closed solid through planar rings of equal vertex count, capped at both ends. Each
+    pair of neighbouring rings must bound planar side faces (straight, ruled sides)."""
+    bm = bmesh.new()
+    vs = [[bm.verts.new(Vector(v)) for v in ring] for ring in rings]
+    n = len(vs[0])
+    bm.faces.new(vs[0])
+    bm.faces.new(list(reversed(vs[-1])))
+    for a, b in zip(vs, vs[1:]):
+        for i in range(n):
+            bm.faces.new((a[i], b[i], b[(i + 1) % n], a[(i + 1) % n]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return _obj(name, bm)
 
 
 def bake(ob):

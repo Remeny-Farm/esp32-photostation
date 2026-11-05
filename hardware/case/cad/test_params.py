@@ -65,6 +65,20 @@ class Fit(unittest.TestCase):
         hi = max(RAIL_PIVOT_Z.values()) + p.bolt_dz + p.bolt_d / 2
         self.assertLessEqual(p.slot_z0, lo)
         self.assertGreaterEqual(p.slot_z1, hi)
+        # The tongue (tongue_len around the bolt) stays in the slot too. Its square corners
+        # sit at half the tongue width (carriage: slot_w - 2 clr) inside the rounded ends.
+        r, w = p.slot_w / 2, (p.slot_w - 2 * p.clr) / 2
+        end = r - math.sqrt(r * r - w * w)
+        for state in ("low", "high"):
+            bolt = RAIL_PIVOT_Z[state] + p.bolt_dz
+            self.assertGreaterEqual(bolt - p.tongue_len / 2, p.slot_z0 + end, state)
+            self.assertLessEqual(bolt + p.tongue_len / 2, p.slot_z1 - end, state)
+
+    def test_bevel_leaves_wood_beside_rail_screws(self):
+        # At the inner face the bevelled opening reaches open_w / 2 + open_bevel; the rail
+        # screw holes (D wood_screw_d at x = +-rail_x) need 5 mm of plywood beside it.
+        wood = p.rail_x - p.wood_screw_d / 2 - (p.open_w / 2 + p.open_bevel)
+        self.assertGreaterEqual(wood, 5.0)
 
     def test_antenna_cable_reported(self):
         # The spec assumed a 15-20 cm u.FL extension; the real route is longer.

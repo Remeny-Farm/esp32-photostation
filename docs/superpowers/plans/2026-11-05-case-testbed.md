@@ -80,6 +80,14 @@ Where this section and the ones above differ, this one wins.
 
 Where this section and the ones above differ, this one wins. PR #4 removed light control from the station: lighting is external and not part of the case. So the LED pockets, their backing pads and wire holes in the body, the LED windows and diffuser skins in the window frame, the AO3400 perfboard clips and seat on the board sled, and the `ph_perfboard`, `ph_led_l` and `ph_led_r` placeholders are removed, with their parameters and checks. The window frame is solid beside the pane; the sled's rear face is plain.
 
+### Revised after the test-bed review (authoritative: `hardware/case/cad/params.py`, `assembly.py`, `verify.py`)
+
+Where this section and the ones above differ, this one wins.
+
+- The field check casts uncapped rays. Its obstacles are `wood_front`, the carriage, both rails and the module parts; the side walls, roof and floor are the scene. It also samples the crop boundary.
+- The front-wall opening has a 45 deg bevel `open_bevel = 6.5` on the inner edges of its sides and bottom, so the central 60% is clear at the high rail position. It leaves 7.25 mm of wood beside each rail screw hole (check: at least 5).
+- `rail_L` is the same print as `rail_R`, turned 180 deg about the world Y axis through the rail mid-height (it was a mirror image). The rail ticks are symmetric about the mid-height, on both sides of the slot.
+
 ---
 
 ### Task 1: Parameters, kinematics and Blender plumbing

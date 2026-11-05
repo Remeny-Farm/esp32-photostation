@@ -26,7 +26,7 @@ orientation (x by y by z, mm).
 
 | STL | Count | Print orientation | Size | What it does |
 |---|---|---|---|---|
-| `rail.stl` | 2 | Front face down, long axis flat | 24 x 249 x 9 | Vertical rail on the outside of the front wall. A slot guides the carriage tongue and the M5 bolt. Tick marks every 10 mm. |
+| `rail.stl` | 2 | Front face down, long axis flat | 24 x 249 x 9 | Vertical rail on the outside of the front wall. A slot guides the carriage tongue and the M5 bolt. Tick marks every 10 mm on both sides of the slot, symmetric about the middle, so one print serves both rails. |
 | `carriage.stl` | 1 | Upright, Z up, bottom bar on the bed | 136 x 28.5 x 102 | Rides both rails. Its two cheeks hold the module on the pivot and on the tilt index holes. |
 | `module_body.stl` | 1 | Top face down | 64 x 49.5 x 81 | Box for the camera and the electronics. Open at the rear. |
 | `module_lid.stl` | 1 | Outer face down | 64 x 78 x 28.4 | Closes the rear. Holds the silica gel bag and pushes the sled to its stop. Louvres instead of a hood. |
@@ -55,9 +55,11 @@ Every part fits the 250 mm limit of the P1S bed and prints without supports.
 | Item | Count | Use |
 |---|---|---|
 | M4 x 16 self-tapping screw | 2 | Pivot, through the carriage cheeks into the module |
-| M3 self-tapping screw | 4 | 2 tilt index, 2 lid |
-| M5 hex bolt, M5 x 25, with washer and wing nut | 2 | Rail clamp. The length is carriage plate 6 mm + rail 9 mm = 15 mm, plus the washer and the wing nut. |
-| 4 mm wood screw | 7 | 4 for the rails, 3 for the bowl holder. The printed holes are D4.5. |
+| M3 x 12 self-tapping screw | 2 | Tilt index. Cheek 6 mm + gap 1 mm + pilot 8.4 mm (wall and boss) = 15.4 mm at most; 12 mm gives 5 mm of thread in the body. |
+| M3 x 10 self-tapping screw | 2 | Lid. Lid 2.4 mm + pilot 8 mm = 10.4 mm at most. |
+| M5 hex bolt, M5 x 25, with washer and wing nut | 2 | Rail clamp. The head sits in the rail channel; the clamped stack is the rail skin 4.5 mm + the carriage plate 6 mm = 10.5 mm, plus the washer and the wing nut. |
+| 4 x 20 wood screw, countersunk | 4 | Rails. Rail 9 mm + wall 12 mm = 21 mm at most. The printed holes are D4.5. |
+| 4 x 16 wood screw, countersunk | 3 | Bowl holder. Tab 5 mm + floor 12 mm = 17 mm at most. The printed holes are D4.5. |
 | M4 nylon bolt and nylon wing nut | 2 | Antenna holder. Nylon only: no metal near the antenna. |
 | Clear acrylic or PC pane, 20 x 20 x 2 mm | 1 | Window in front of the lens |
 | Zip tie | 1 | Strain relief for the USB-C cable |
@@ -97,19 +99,24 @@ and the front wall sits between the side walls.
 Openings and drill positions. Measure each one from the edges named in the note.
 
 - `wood_front`: opening 80 x 345, centred across, from 30 to 375 above the bottom edge.
-- `wood_front`: rail screws, 4 x pilot for wood screws at (69, 64.5), (69, 295.5), (181, 64.5),
+- `wood_front`: on the inner face, a 45 deg bevel 6.5 deep on the two side edges and the bottom
+  edge of the opening (not the top), so the opening measures 93 x 351.5 on the inner face. At the
+  high position the steep lower corners of the image pass the side faces just inside the wall;
+  without the bevel they are cut off. The bevel leaves 7.25 mm of wood beside each rail screw hole.
+- `wood_front`: rail screws, 4 x pilot for 4 x 20 wood screws at (69, 64.5), (69, 295.5), (181, 64.5),
   (181, 295.5) (from the left edge, from the bottom edge; outer face).
 - `wood_roof`: u.FL hole D6 at (137, 22) (from the left edge, from the front edge).
 - `wood_roof`: antenna holder, 2 x D4.5 for M4 nylon bolts at (119, 312) and (155, 312) (from the left
   edge, from the front edge). Nylon only, no metal within 100 mm of the radiator.
-- `wood_floor`: bowl holder, 3 x pilot for wood screws at (137, 287.3), (58.8, 151.8) and (215.2, 151.8)
+- `wood_floor`: bowl holder, 3 x pilot for 4 x 16 wood screws at (137, 287.3), (58.8, 151.8) and (215.2, 151.8)
   (from the left edge, from the front edge).
 
 `blender.sh build.py` prints the same list. If the code and this table differ, the code is right.
 
 ## Assembly
 
-1. Screw the two rails to the outside of the front wall at the four drill positions.
+1. Screw the two rails to the outside of the front wall at the four drill positions. The second
+   rail is the same print as the first, turned end for end.
 2. Put one M5 bolt into each rail channel. The head sits in the channel, the shank goes through the
    slot.
 3. Push the carriage onto the two bolts. The tongues enter the slots. Add the washers and the wing
@@ -135,7 +142,9 @@ Openings and drill positions. Measure each one from the edges named in the note.
 ## Setting the camera
 
 The rail has three planned positions. Each is a pivot height with a matching tilt. The tick marks
-on the rail (every 10 mm, a long tick every 50 mm) help you repeat a height.
+on the rail (every 10 mm on both sides of the slot, a long tick every 50 mm from the middle) help
+you repeat a height. The bolt centre on the middle long tick is the mid position; the low and high
+positions put it halfway between two ticks (85 and 275 mm above the floor).
 
 | Rail position | Pivot height (mm) | Tilt (degrees) | Distance lens to head (mm) |
 |---|---|---|---|
@@ -160,6 +169,10 @@ To clean the window, lift the window frame straight up out of its guides.
 - The head is about 190 to 270 px wide in a 2048 px image (189 px at the high position, 273 px at
   the low one). For a portrait, crop the image.
 - At the high position (tilt 45) the module clears the wall by only 1.0 mm.
+- The central 60% of the image (in each direction) is clear at every position. The front wall,
+  rails, carriage and module block 0% of the whole frame at the low position, 1.4% at mid and
+  20.8% at high, where the lower left and right of the image see the side faces of the opening.
+  The opening bevel keeps the lower corners of the central 60% clear at the high position.
 - The window frame lifts out only at tilt 15 or less.
 - The u.FL cable length is 486 to 676 mm, not 15 to 20 cm (see above).
 

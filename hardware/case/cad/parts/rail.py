@@ -1,4 +1,6 @@
-"""Wall rail: the +X rail in the world frame (the assembly mirrors it for the -X rail).
+"""Wall rail: the +X rail in the world frame. Both rails are this one print: the assembly
+turns it end for end (180 deg about Y) for the -X rail, so every feature is symmetric about
+the rail's mid-height, and the ticks sit on both sides of the slot.
 
 The back face (+Y) sits on the outer face of the front wall. A hex-head channel in the back
 face holds the M5 bolt head flats; a slot through the front skin lets the bolt shank and the
@@ -32,10 +34,18 @@ def _frame(p):
         "z1": p.slot_z1 + p.rail_foot,
         "feet": ((p.slot_z0 - p.rail_foot + p.slot_z0) / 2,
                  (p.slot_z1 + p.slot_z1 + p.rail_foot) / 2),
-        "tick_x0": p.rail_x + p.slot_w / 2 + TICK_MARGIN,
-        "ticks": [(p.slot_z0 + k * p.tick_pitch, (k * p.tick_pitch) % TICK_MAJOR == 0)
-                  for k in range(int((p.slot_z1 - p.slot_z0) / p.tick_pitch) + 1)],
+        "tick_dx": p.slot_w / 2 + TICK_MARGIN,           # slot centre line to the tick start
+        "ticks": _ticks(p),
     }
+
+
+def _ticks(p):
+    """(z, major) from the slot middle outwards, so the rail reads the same turned end for
+    end. The long tick in the middle is the mid rail state's bolt height."""
+    mid = (p.slot_z0 + p.slot_z1) / 2
+    n = int((p.slot_z1 - p.slot_z0) / 2 / p.tick_pitch)
+    zs = sorted({(mid + s * k * p.tick_pitch, k) for k in range(n + 1) for s in (-1, 1)})
+    return [(z, (k * p.tick_pitch) % TICK_MAJOR == 0) for z, k in zs]
 
 
 def build(p):
@@ -66,12 +76,14 @@ def build(p):
                  mesh.cone("foot_csk", CSK_D + 2, p.wood_screw_d, csk_depth + 1,
                            (rx, yf + csk_depth / 2 - 0.5, zc), "Y"))
 
-    # Engraved ticks beside the slot, measured from slot_z0.
+    # Engraved ticks on both sides of the slot, symmetric about the mid-height.
     ticks = []
     for z, major in f["ticks"]:
         ln = TICK_LONG if major else TICK_SHORT
-        ticks.append(mesh.box_span("tick", (f["tick_x0"], f["tick_x0"] + ln),
-                                   (yf - 1, yf + TICK_DEPTH), (z - TICK_W / 2, z + TICK_W / 2)))
+        for s in (-1, 1):
+            x0 = rx + s * f["tick_dx"]
+            ticks.append(mesh.box_span("tick", (x0, x0 + s * ln),
+                                       (yf - 1, yf + TICK_DEPTH), (z - TICK_W / 2, z + TICK_W / 2)))
     mesh.cut(rail, mesh.union(ticks[0], *ticks[1:]))
     return rail
 
@@ -126,15 +138,23 @@ def checks(p, ob):
         got = mesh.ray_hits(ob, (rx + 3.5, yf - 10, zc), (0, 1, 0))
         _near(errs, f"countersink at z={zc:.1f}", got, 10 + (CSK_D / 2 - 3.5), 0.1)
 
-    # Ticks: recessed at a tick, flush between ticks, long ticks every 50 mm.
+    # Ticks on both sides: recessed at a tick, flush between ticks, long ticks every 50 mm
+    # from the middle, and the set is symmetric about the mid-height.
+    zs = [z for z, _ in f["ticks"]]
+    if any(abs((z0 + z1) / 2 - mid) > 1e-6 for z0, z1 in zip(zs, reversed(zs))):
+        errs.append(f"ticks are not symmetric about the mid-height {mid:g}: {zs}")
+    if (mid, True) not in f["ticks"]:
+        errs.append(f"no long tick at the mid-height {mid:g}")
     for z, major in f["ticks"]:
-        x_in = f["tick_x0"] + 2.0
-        got = mesh.ray_hits(ob, (x_in, yf - 10, z), (0, 1, 0))
-        _near(errs, f"tick depth at z={z:.1f}", got, 10 + TICK_DEPTH, 0.05)
-        x_end = f["tick_x0"] + TICK_LONG - 0.5
-        got = mesh.ray_hits(ob, (x_end, yf - 10, z), (0, 1, 0))
-        _near(errs, f"{'long' if major else 'short'} tick end at z={z:.1f}", got,
-              10 + (TICK_DEPTH if major else 0.0), 0.05)
-        got = mesh.ray_hits(ob, (x_in, yf - 10, z + p.tick_pitch / 2), (0, 1, 0))
-        _near(errs, f"face between ticks at z={z + p.tick_pitch / 2:.1f}", got, 10.0, 0.05)
+        for s in (-1, 1):
+            side = "+X" if s > 0 else "-X"
+            x_in = rx + s * (f["tick_dx"] + 2.0)
+            got = mesh.ray_hits(ob, (x_in, yf - 10, z), (0, 1, 0))
+            _near(errs, f"{side} tick depth at z={z:.1f}", got, 10 + TICK_DEPTH, 0.05)
+            x_end = rx + s * (f["tick_dx"] + TICK_LONG - 0.5)
+            got = mesh.ray_hits(ob, (x_end, yf - 10, z), (0, 1, 0))
+            _near(errs, f"{side} {'long' if major else 'short'} tick end at z={z:.1f}", got,
+                  10 + (TICK_DEPTH if major else 0.0), 0.05)
+            got = mesh.ray_hits(ob, (x_in, yf - 10, z + p.tick_pitch / 2), (0, 1, 0))
+            _near(errs, f"{side} face between ticks at z={z + p.tick_pitch / 2:.1f}", got, 10.0, 0.05)
     return errs

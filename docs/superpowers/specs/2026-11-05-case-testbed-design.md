@@ -107,7 +107,8 @@ Anti-goals (failure even if it works technically):
   implementer, but the cable must not break and must not be under tension.
 - **Window:** acrylic or PC sheet in front of the lens. It can be replaced and cleaned from
   outside, without tools or with one screw. The LED strip sits around the window, behind a
-  diffuser. A rim separates it from the lens, so that no glare appears.
+  diffuser. A rim separates it from the lens, so that no glare appears. (Superseded by PR #4:
+  lighting is external.)
 - **Antenna:** not in the module. It is on a separate holder under the roof (5.4a). A u.FL
   extension cable runs from the module to it, loosely, so that sliding and tilting of the
   module do not pull on it.
@@ -179,7 +180,8 @@ Anti-goals (failure even if it works technically):
 
 - The model is made in Blender, through the Blender MCP. Unit: mm (Scene Units: Metric,
   Unit Scale 0.001, Length: Millimeters).
-- The parts (XIAO stack, camera, antenna, LED strip, USB-C plug) enter the scene as simplified
+- The parts (XIAO stack, camera, antenna, LED strip (superseded by PR #4:
+  lighting is external), USB-C plug) enter the scene as simplified
   placeholder bodies, with the sizes from `DIMENSIONS.md`, so that the fit can be checked. The
   Seeed STEP models can be converted to STL and imported. But the contents of
   `hardware/case/ref/` do not go into the repo (licence).
@@ -200,7 +202,8 @@ on the real part before the module is final:
 2. The real height of the XIAO stack (wiki: 15 mm, model: 13.96 mm) and the board thickness.
 3. How far the microSD sticks out of the expansion board, with a card inserted.
 4. The head length and width of the USB-C plug, and the cable diameter.
-5. The width and thickness of the LED strip, and the cutting pitch.
+5. The width and thickness of the LED strip, and the cutting pitch. (Superseded by PR #4:
+   lighting is external.)
 6. The real size of the antenna and the length of its cable.
 
 ## 8. Left to the implementer
@@ -209,7 +212,8 @@ on the real part before the module is final:
 - The internal layout of the module, the mechanics of the tiltable head, the number of fixed
   positions.
 - The rail length, the fixing method, the screw types (threaded insert, self-tapping).
-- The LED strip length and placement, the diffuser material.
+- The LED strip length and placement, the diffuser material. (Superseded by PR #4: lighting
+  is external.)
 - The design of the ventilation, the labyrinth and the silica gel pocket.
 - The module wall thickness and the print settings.
 

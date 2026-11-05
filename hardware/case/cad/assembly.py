@@ -63,6 +63,21 @@ def _boards(p):
     ]
 
 
+def _opening(p):
+    """Front-wall opening cutter. The side and bottom edges on the inner (corridor) face
+    carry a 45 deg bevel open_bevel deep: at the high state the steep lower corner rays
+    of the central crop pass the opening's side faces just inside the wall."""
+    hw, b = p.open_w / 2, p.open_bevel
+
+    def ring(y, e):
+        return [(-hw - e, y, p.open_z0 - e), (hw + e, y, p.open_z0 - e),
+                (hw + e, y, p.open_z1), (-hw - e, y, p.open_z1)]
+    # The cutter overshoots both faces by 1 mm; the bevel carries on along 45 deg.
+    rings = [ring(-p.t_wood - 1, 0.0)]
+    rings += [ring(-b, 0.0), ring(1.0, b + 1.0)] if b > 0 else [ring(1.0, 0.0)]
+    return mesh.loft("opening", rings)
+
+
 def wood(p):
     """Plywood boards: floor and roof span the full width, the side walls stand on the
     floor, the front wall sits between them. The entrance end (Y inner_len) is open."""
@@ -70,8 +85,7 @@ def wood(p):
     for name, xs, ys, zs in _boards(p):
         ob = mesh.box_span(name, xs, ys, zs)
         if name == "wood_front":
-            mesh.cut(ob, mesh.box_span("opening", (-p.open_w / 2, p.open_w / 2),
-                                       (-p.t_wood - 1, 1.0), (p.open_z0, p.open_z1)))
+            mesh.cut(ob, _opening(p))
         if name == "wood_roof":
             mesh.cut(ob, mesh.cyl("roof_hole", ROOF_HOLE_D, p.t_wood + 2,
                                   (0.0, p.roof_hole_y, p.inner_h + p.t_wood / 2), segments=32))
@@ -99,7 +113,10 @@ def cut_notes(p):
     notes = [
         f"wood_front: opening {p.open_w:g} x {p.open_z1 - p.open_z0:g}, centred across, "
         f"from {p.open_z0:g} to {p.open_z1:g} above the bottom edge",
-        "wood_front: rail screws, 4 x pilot for 4 mm wood screws at "
+        f"wood_front: inner face, 45 deg bevel {p.open_bevel:g} deep on the two side edges and "
+        f"the bottom edge of the opening (not the top), so it measures "
+        f"{p.open_w + 2 * p.open_bevel:g} x {p.open_z1 - p.open_z0 + p.open_bevel:g} on the inner face",
+        "wood_front: rail screws, 4 x pilot for 4 x 20 wood screws at "
         + ", ".join(f"({hw + sx * p.rail_x:g}, {z:g})" for sx in (-1, 1) for z in feet)
         + " (from the left edge, from the bottom edge; outer face)",
         f"wood_roof: u.FL hole D{ROOF_HOLE_D:g} at ({hw + t:g}, {p.roof_hole_y + t:g}) "
@@ -108,7 +125,7 @@ def cut_notes(p):
         f"({hw + t - 18:g}, {p.antenna_y + t:g}) and ({hw + t + 18:g}, {p.antenna_y + t:g}) "
         "(from the left edge, from the front edge); nylon only, no metal within "
         f"{p.metal_keepout:g} mm of the radiator",
-        "wood_floor: bowl holder, 3 x pilot for 4 mm wood screws at "
+        "wood_floor: bowl holder, 3 x pilot for 4 x 16 wood screws at "
         + ", ".join(f"({x + hw + t:.1f}, {y + t:.1f})" for x, y in bowl._hole_centres(p))
         + " (from the left edge, from the front edge)",
     ]
@@ -237,9 +254,16 @@ def build(p, state="mid", tilt=None):
     objs["carriage_origin"], objs["module_pivot"] = carr_origin, pivot
 
     printed = []
-    rail_r = load("rail").build(p)
+    rail = load("rail")
+    rail_r = rail.build(p)
     rail_r.name = "rail_R"
-    rail_l = mesh.mirror_x(rail_r, "rail_L")
+    # The -X rail is the same print turned end for end: 180 deg about the world Y axis
+    # through the rail's mid-height (the ticks are symmetric, so it reads the same).
+    f = rail._frame(p)
+    zm = (f["z0"] + f["z1"]) / 2
+    rail_l = mesh.copy(rail_r, "rail_L")
+    rail_l.data.transform(Matrix.Translation((0.0, 0.0, zm)) @ Matrix.Rotation(math.pi, 4, "Y")
+                          @ Matrix.Translation((0.0, 0.0, -zm)))
     printed += [rail_r, rail_l]
 
     carriage = load("carriage").build(p)
