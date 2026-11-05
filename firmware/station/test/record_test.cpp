@@ -18,7 +18,6 @@ static VisitRecord sample() {
   r.decision.candidates.push_back({"AA:BB:CC:DD:EE:02", "TAG-0002", -70, 3, -75, -66});
   r.thresholdDbm = -60;
   r.marginDb = 8;
-  r.lightPwm = 180;
   return r;
 }
 
@@ -56,7 +55,7 @@ TEST(json_known_tag) {
       "\"min\":-54,\"max\":-45},"
       "{\"mac\":\"AA:BB:CC:DD:EE:02\",\"median\":-70,\"count\":3,\"min\":-75,\"max\":-66}],"
       "\"threshold_dbm\":-60,\"margin_db\":8},"
-      "\"firmware\":\"station 0.1.0\",\"light_pwm\":180}";
+      "\"firmware\":\"station 0.1.0\"}";
   CHECK_EQ(visitJson(sample()), expected);
 }
 

@@ -1,6 +1,6 @@
 // esp32-photostation: PIR visit loop with SD queue, BLE tag identification, Wi-Fi upload,
-// heartbeat and OTA. PIR edge -> light on -> 3..5 photos -> SD queue (/q) -> light off + visit
-// JSON; the uploader task drains /q outside visits.
+// heartbeat and OTA. PIR edge -> 3..5 photos -> SD queue (/q) -> visit JSON; the uploader
+// task drains /q outside visits.
 #include <Arduino.h>
 #include <Preferences.h>
 #include <esp_heap_caps.h>
@@ -14,7 +14,6 @@
 #include "src/hw/camera.h"
 #include "src/hw/config.h"
 #include "src/hw/console.h"
-#include "src/hw/light.h"
 #include "src/hw/log.h"
 #include "src/hw/net.h"
 #include "src/hw/pir.h"
@@ -74,9 +73,7 @@ void visitTask(void*) {
         }
         rec.thresholdDbm = visitT;
         rec.marginDb = visitX;
-        rec.lightPwm = kLightVisitPwm;
         logLine("Open %s", rec.visitId.c_str());
-        lightSet(kLightVisitPwm);
         break;
       case VisitEv::Capture: {
         camera_fb_t* fb = cameraCapture(s.n == 1);
@@ -96,7 +93,6 @@ void visitTask(void*) {
         break;
       }
       case VisitEv::Close: {
-        lightSet(0);
         pirNoteClose(s.reason == CloseReason::Forced);
         rec.endedAt = netEpoch();
         {
@@ -158,8 +154,8 @@ void cmdInfo(const Command&) {
     Serial.printf("INFO upload state=%s queue=%u\n", uploaderState().c_str(), (unsigned)uploaderQueueLen());
   }
   Serial.printf("INFO pir_stuck=%d forced_closes=%u\n", (int)pirStuck(), (unsigned)pirForcedCloses());
-  Serial.printf("INFO light=%u heap=%u min_heap=%u psram_free=%u int_free=%u int_largest=%u int_largest_min=%u\n",
-                (unsigned)lightLevel(), (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getMinFreeHeap(),
+  Serial.printf("INFO heap=%u min_heap=%u psram_free=%u int_free=%u int_largest=%u int_largest_min=%u\n",
+                (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getMinFreeHeap(),
                 (unsigned)ESP.getFreePsram(), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
                 (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL), (unsigned)heapLargestMin());
 }
@@ -217,16 +213,6 @@ void cmdCat(const Command& c) {
   Serial.write((const uint8_t*)s.data(), s.size());
   Serial.println();
   Serial.println("CAT_END");
-}
-
-void cmdLight(const Command& c) {
-  int v = c.args.empty() ? -1 : atoi(c.args[0].c_str());
-  if (v < 0 || v > 255) {
-    Serial.println("ERR usage: light <0-255>");
-    return;
-  }
-  lightSet((uint8_t)v);
-  Serial.printf("OK light %u\n", (unsigned)lightLevel());
 }
 
 // scan: the last 30 s per tag: mac name median count min max vbat_mv
@@ -461,7 +447,6 @@ void setup() {
   bool cam = initWithRetry(cameraInit, "camera");
   checkInit(sd, cam);  // may restart
   if (sd) storagePruneSent();
-  lightInit();
   pirInit();
 
   g_tagLock = xSemaphoreCreateMutex();
@@ -475,7 +460,6 @@ void setup() {
   consoleRegister("snap", cmdSnap);
   consoleRegister("ls", cmdLs);
   consoleRegister("cat", cmdCat);
-  consoleRegister("light", cmdLight);
   consoleRegister("scan", cmdScan);
   consoleRegister("set", cmdSet);
   consoleRegister("benchls", cmdBenchLs);

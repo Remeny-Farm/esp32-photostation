@@ -10,14 +10,12 @@ in [../hardware/case/README.md](../hardware/case/README.md).
 | 1 | Seeed XIAO ESP32S3 Sense (camera and u.FL antenna in the box) | 1 | The whole station: ESP32-S3, camera, microSD slot, Wi-Fi/BLE. |
 | 2 | microSD card, 16-32 GB, high endurance, FAT32 | 1 | Format as FAT32; exFAT does not mount. |
 | 3 | AM312 mini PIR module | 1 | Trigger. Any 3.3 V PIR with a digital output works. |
-| 4 | 5 V white LED strip, about 0.5 W, with a diffuser | 1 | A single 5 mm LED is not enough light. |
-| 5 | Logic-level N-MOSFET (AO3400 or similar), 100 ohm gate resistor, 10 kohm pull-down | 1 | Switches the LED strip from GPIO2. A 2N7000 opens unreliably at 3.3 V gate drive. |
-| 6 | 5 V / 2 A outdoor USB power supply and USB-C cable | 1 | Mains powered; no battery in v1. |
-| 7 | Pin header, silicone wire, heat-shrink tubing | 1 set | |
-| 8 | USB-C data cable | 1 | For flashing and the serial console. |
-| 9 | Acrylic or polycarbonate window | 1 | In front of the camera; cleanable. |
-| 10 | Silica gel, aluminium tape | | Humidity and optional RF shielding. |
-| 11 | PETG filament | | For the case; PLA softens in summer heat. |
+| 4 | 5 V / 2 A outdoor USB power supply and USB-C cable | 1 | Mains powered; no battery in v1. |
+| 5 | Pin header, silicone wire, heat-shrink tubing | 1 set | |
+| 6 | USB-C data cable | 1 | For flashing and the serial console. |
+| 7 | Acrylic or polycarbonate window | 1 | In front of the camera; cleanable. |
+| 8 | Silica gel, aluminium tape | | Humidity and optional RF shielding. |
+| 9 | PETG filament | | For the case; PLA softens in summer heat. |
 
 Optional: a spare FPC antenna from the board vendor (cheap, order it with the board). A
 multimeter with a microamp range if you want to measure sleep currents for a future battery
@@ -32,8 +30,8 @@ version.
 - Camera on the Sense expansion board: boards ship with OV2640, OV3660 or OV5640 (with
   autofocus) depending on the production run. The firmware prints the detected sensor in `info`
   (`camera=OV3660`). At 1600x1200 JPEG quality 10 one photo is 120-145 KB and takes about 1 ms
-  to pull from the frame buffer after four warm-up frames. In dim room light without the LED the
-  picture is dark and purple; the light is required.
+  to pull from the frame buffer after four warm-up frames. In dim room light the picture is dark
+  and purple; see [Lighting](#lighting).
 - One u.FL connector; Wi-Fi and BLE share the antenna. There is no on-board antenna. Without the
   external antenna every BLE signal was below -80 dBm and most tags were invisible; with it the
   same tag went from -82 to -48 dBm. Always keep the antenna plugged in.
@@ -45,12 +43,11 @@ version.
 
 ## Pinout
 
-Firmware pins (`firmware/station/src/hw/pir.cpp`, `light.cpp`, `storage.cpp`):
+Firmware pins (`firmware/station/src/hw/pir.cpp`, `storage.cpp`):
 
 | Function | GPIO | XIAO label |
 |---|---|---|
 | PIR output | GPIO1 | D0 |
-| Light MOSFET gate (LEDC PWM, 5 kHz, 8 bit) | GPIO2 | D1 |
 | SD card CS | GPIO21 | |
 | SD card SCK | GPIO7 | |
 | SD card MISO | GPIO8 | |
@@ -66,17 +63,20 @@ it.
 
 GPIO21 is both the SD card chip select and the on-board user LED. While the SD card is in use the
 LED flickers with SD activity and cannot be used as an indicator. The firmware does not touch the
-user LED; the visit light on GPIO2 is the only light output.
+user LED and drives no light output.
+
+## Lighting
+
+The camera needs light for usable photos. The station does not drive or switch any light. Use an
+external, constant light source on its own timer that switches off at night. It is not wired to the
+station. At night the photos are dark, but visits, BLE identification and the visit JSON still
+work.
 
 ## Wiring
 
 - PIR: VCC to 3V3, GND to GND, OUT to D0 (GPIO1). The AM312 output is 3.3 V, so no divider is
   needed.
-- Light: LED strip + to 5 V, LED strip - to the MOSFET drain, MOSFET source to GND, gate to D1
-  (GPIO2) through 100 ohm, 10 kohm from gate to GND. The firmware drives the gate with PWM and
-  ramps the level over 300 ms, so the animal never sees a flash. Visit level is PWM 180 of 255.
-- Power: USB-C from a 5 V / 2 A supply. The board's own 5 V pin can feed the LED strip at
-  0.5 W.
+- Power: USB-C from a 5 V / 2 A supply.
 - Antenna: plug the u.FL antenna in and route it inside the case roof, above the animal's back,
   away from metal.
 

@@ -19,7 +19,7 @@ struct VisitRecord {
   bool timeSynced = false;
   std::vector<PhotoInfo> photos;
   Decision decision;
-  int thresholdDbm = 0, marginDb = 0, lightPwm = 0;
+  int thresholdDbm = 0, marginDb = 0;
 };
 
 // epochSec < 0 = clock not synced. Synced: <station>-<YYYYMMDD>T<HHMMSS>Z-<counter:4>.

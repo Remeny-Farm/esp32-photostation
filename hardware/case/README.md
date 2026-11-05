@@ -13,8 +13,7 @@ fits them.
 - The camera sits above and behind the bait bowl, looking at the animal's head at a distance of
   20-30 cm. Check the field of view with a cardboard mock-up before printing; a wide-angle lens
   may be needed for close-ups.
-- The electronics compartment is on the roof: the XIAO board, the PIR, the MOSFET and the cable
-  entry. The compartment is closed against dust and ammonia and holds a silica gel bag.
+- The electronics compartment is on the roof: the XIAO board, the PIR and the cable entry. The compartment is closed against dust and ammonia and holds a silica gel bag.
 - A cleanable acrylic or polycarbonate window in front of the camera, replaceable from outside.
 - The u.FL antenna is fixed to the inside of the roof, above the animal's back, where the tag of
   the animal inside is closest to it. No metal near the antenna.
@@ -22,8 +21,8 @@ fits them.
   add vents above the electronics and a roof overhang or a separate shade.
 - The PIR looks down the corridor from the roof or the back wall so that it fires when the animal
   is near the bowl, not when it passes outside the entrance.
-- The light (LED strip with a diffuser) sits around the camera window and lights the head without
-  shining into the lens.
+- The external light is not part of the station. The case may offer a mount for it, but the light
+  must not shine into the lens.
 
 Optional: aluminium tape on the inside walls, as described in
 [../../docs/hardware.md](../../docs/hardware.md#antenna-lessons); try without it first.
@@ -45,7 +44,7 @@ directory is gitignored except for `DIMENSIONS.md`).
 
 - `station-case.step` and `station-case.stl`: the body, roof and window frame as printable
   parts.
-- `electronics-tray.step` / `.stl`: the tray for the board, PIR and MOSFET.
+- `electronics-tray.step` / `.stl`: the tray for the board and PIR.
 - `README.md` (this file): print settings and assembly notes once the parts exist.
 
 ## How to contribute
