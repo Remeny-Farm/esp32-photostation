@@ -1,0 +1,25 @@
+esp32-photostation
+Copyright (c) 2026 esp32-photostation contributors
+
+This project (firmware source, tools, documentation and case files) is licensed
+under the MIT License; see LICENSE.
+
+Third-party components
+----------------------
+
+The firmware source in this repository uses no external Arduino libraries, but
+a compiled firmware binary links the following components provided by the
+Arduino core for ESP32 and its bundled SDK:
+
+- arduino-esp32 (the esp32:esp32 Arduino core): LGPL-2.1-or-later
+- ESP-IDF, esp32-camera, NimBLE (Apache NimBLE port), mbedTLS: Apache-2.0
+
+The Python tools in tools/ use:
+
+- pyserial: BSD-3-Clause
+
+If you distribute compiled firmware binaries, you must honour the terms of the
+LGPL-2.1 for the arduino-esp32 core (for example, provide the corresponding
+source or the means to relink against a modified core) in addition to the
+Apache-2.0 notices of the SDK components. Distributing the source alone under
+the MIT License carries no such obligation.

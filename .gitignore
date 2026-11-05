@@ -1,0 +1,26 @@
+# Build output
+build/
+firmware/**/build/
+
+# Secrets and local configuration
+firmware/station/secrets.local.env
+secrets.local.env*
+*.env
+!*.env.example
+*.pem
+*.key
+
+# Local backups, flash dumps (they hold NVS secrets) and logs
+backup/
+*.bin
+*.elf
+*.log
+
+# Python
+*.pyc
+__pycache__/
+
+# OS and tooling
+.DS_Store
+.claude/
+.superpowers/
