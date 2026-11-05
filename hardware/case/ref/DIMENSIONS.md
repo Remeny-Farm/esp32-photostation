@@ -8,6 +8,7 @@ Coordinate frame for the XIAO STEP model (as shipped): X = board length (u.FL en
 - X is measured from the u.FL end of the main PCB (X = 0 there, 20.95 at the USB-C end).
 - Y values are the raw model Y: the main PCB spans Y -0.25..1.00, so the **main PCB top surface is Y = 1.00**, not 0. Heights "above the PCB top" are already relative to that surface.
 - Z is given "from the low-Z long edge" where a row says so; rows that quote negative Z values (USB-C centre, camera centre) use the raw model Z, where the board centre is Z -6.11.
+- Exception: the camera row quotes raw model X and Z ("in model frame"). The raw X origin was not verified, so do not read that X against the u.FL-end rule above.
 
 ## 1. Seeed Studio XIAO ESP32S3 Sense (main board + Sense expansion board)
 
@@ -29,7 +30,7 @@ Files: `xiao_esp32s3_sense/` (zips contain STEP + photos; DXF are PCB-layout sty
 | microSD slot (Amphenol 10067099-200LF as named in model) | Body 5.50 (X) x 11.40 (Z) x 2.65 (Y 5.13..7.78) on the expansion board top. Card insertion axis is +X (towards USB-C end) | MODEL | zip above |
 | microSD card as modelled (seated) | Occupies X 0.33..15.39: its end is about 1.0 past the expansion PCB end (X 14.37) and about 5.6 short of the main PCB USB-C end (X 20.95); about 9.6 of the card lies outside the 5.50 slot body, Y 6.60..8.25, Z width 11.18. Card therefore lies over the main board near USB-C. Model slot depth looks simplified: verify on the real part | MODEL (unverified) | zip above |
 | Digital mic (MIC on expansion board) | footprint about 4 x 3 near the u.FL-side corner of the expansion board's top (from ExpBoard DXF, not dimensioned) | OFFICIAL (DXF, rough) | https://files.seeedstudio.com/wiki/SeeedStudio-XIAO-ESP32S3/res/XIAO_ESP32S3_ExpBoard_v1.0_top.dxf |
-| Camera module in model | 8.00 x 8.00 module, Y 7.95..13.71 (5.76 tall incl. lens), centre at X 8.75/Z -6.75 in model frame, i.e. over the USB-C end of the main board. Lens parts: 1.5 x 1.5 core on a 3.56 stalk. FPC drawn as a bent 7.0 x 6.0 (Y 5.60..8.50) section plus 5.0 x 12.5 tail | MODEL (generic placeholder camera) | zip above |
+| Camera module in model | 8.00 x 8.00 module, Y 7.95..13.71 (5.76 tall incl. lens), centre at raw model X 8.75 / Z -6.75 (raw X origin not verified; do not derive the lens position from it). The module hangs on its FPC, so its real position is set by the case, not by the board: place the camera window from the FPC length (OV3660 21.20, see section 2) and check it on the real part. Lens parts: 1.5 x 1.5 core on a 3.56 stalk. FPC drawn as a bent 7.0 x 6.0 (Y 5.60..8.50) section plus 5.0 x 12.5 tail | MODEL (generic placeholder camera) | zip above |
 | Total stack height | Y -0.25 .. 13.71 = 13.96 in model (main PCB bottom to lens top). Wiki states 15 (21 x 17.8 x 15 mm with expansion board). Use 15.0 as design value | wiki OFFICIAL; model MODEL | https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/ |
 | Main PCB length incl. USB-C overhang | 20.95 + 1.53 = 22.48 | derived from MODEL | zip above |
 | Seeed's own 2-part housing (STEP) | Outer 22.18 x 25.32; top shell height 9.03, bottom shell height 5.40 (assembled height <= 14.43 if no overlap) | OFFICIAL (Seeed) | https://files.seeedstudio.com/wiki/SeeedStudio-XIAO-ESP32S3/res/XIAO-ESP32S3-Sense-housing-design(top).stp (and `(bottom).stp`) |
