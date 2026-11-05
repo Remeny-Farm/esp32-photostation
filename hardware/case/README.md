@@ -115,10 +115,10 @@ Openings and drill positions. Measure each one from the edges named in the note.
 
 ## Assembly
 
-1. Screw the two rails to the outside of the front wall at the four drill positions. The second
-   rail is the same print as the first, turned end for end.
-2. Put one M5 bolt into each rail channel. The head sits in the channel, the shank goes through the
-   slot.
+1. Put one M5 bolt into the channel in the back face of each rail. The head sits in the channel,
+   the shank goes out through the slot. Do this first: the wall closes the channel.
+2. Screw the two rails to the outside of the front wall at the four drill positions, channel side
+   on the wall. The second rail is the same print as the first, turned end for end.
 3. Push the carriage onto the two bolts. The tongues enter the slots. Add the washers and the wing
    nuts, but do not tighten them.
 4. Put the XIAO board into the pocket on the front of the sled.
