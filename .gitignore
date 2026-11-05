@@ -29,3 +29,7 @@ __pycache__/
 # Sources are listed in hardware/case/ref/DIMENSIONS.md.
 hardware/case/ref/*
 !hardware/case/ref/DIMENSIONS.md
+
+# Blender backup saves and slicer scratch output
+*.blend1
+hardware/case/out/

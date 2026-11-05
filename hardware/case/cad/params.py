@@ -36,9 +36,9 @@ class P:
     inner_w: float = 250.0
     inner_h: float = 400.0
     inner_len: float = 650.0
-    open_w: float = 100.0        # front-wall opening, centred on X
+    open_w: float = 80.0         # front-wall opening, centred on X; leaves 16 mm of wood beside the rail screws
     open_z0: float = 30.0
-    open_z1: float = 355.0
+    open_z1: float = 375.0       # high rail, tilt 15: the window frame lifts out up to z 369
     roof_hole_y: float = 10.0    # u.FL extension passes the roof here
 
     # Bowl and hen (measure)
@@ -77,7 +77,7 @@ class P:
     guide_w: float = 3.0         # guide rail width beside the frame
     guide_lip: float = 1.5       # lip overlapping the frame front edge
     guide_lip_t: float = 1.2     # lip thickness (y)
-    grip: Vec3 = (12.0, 2.0, 4.0)  # pull tab on the frame top: x, y, z
+    grip: Vec3 = (12.0, 2.0, 3.5)  # pull tab on the frame top: x, y, z (z: 1 mm wall standoff at 45 deg)
 
     # Electronics inside the module (local frame; DIMENSIONS.md section 1)
     board_w: float = 17.78
@@ -117,9 +117,9 @@ class P:
     slot_w: float = 5.5
     bolt_d: float = 5.0
     bolt_dz: float = -40.0       # bolt Z relative to the pivot
-    slot_z0: float = 81.5
-    slot_z1: float = 278.5
-    rail_foot: float = 26.0
+    slot_z0: float = 73.5        # slot = bolt travel (190) + the tongue (18) + end radii
+    slot_z1: float = 286.5
+    rail_foot: float = 18.0
     wood_screw_d: float = 4.5
     tick_pitch: float = 10.0
 
@@ -131,7 +131,7 @@ class P:
     cheek_y: tuple[float, float] = (8.0, -20.5)
     cheek_z: tuple[float, float] = (-8.0, 18.0)
     tongue: tuple[float, float] = (5.0, 2.0)       # width, height into the slot
-    tongue_len: float = 60.0
+    tongue_len: float = 18.0     # must stay in the slot over the whole bolt travel
 
     # Bowl holder
     ring_wall: float = 4.0
