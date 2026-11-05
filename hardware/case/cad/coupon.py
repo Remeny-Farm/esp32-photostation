@@ -33,7 +33,7 @@ PRINT_ROT = (0.0, 0.0, 0.0)   # coupons are built in print orientation
 
 
 def _slice(part, p, xs, ys, zs, rot):
-    """part ∩ box, turned into the part's print orientation and dropped onto the bed."""
+    """part intersect box, turned into the part's print orientation and dropped onto the bed."""
     ob = load(part).build(p)
     mesh.intersect(ob, mesh.box_span(f"{part}_slice_box", xs, ys, zs))
     mesh.apply_print_rotation(ob, rot)

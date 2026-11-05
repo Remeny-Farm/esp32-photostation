@@ -84,7 +84,7 @@ def build(p):
 
 
 def _overlap(a_ob, b_ob):
-    """Volume of a_ob ∩ b_ob; b_ob is consumed."""
+    """Volume of a_ob intersect b_ob; b_ob is consumed."""
     tmp = mesh.copy(a_ob, "overlap_tmp")
     mesh.intersect(tmp, b_ob)
     v = mesh.volume(tmp)

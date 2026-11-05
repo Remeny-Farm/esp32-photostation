@@ -1,4 +1,4 @@
-# Photo station case – v1 test bed (design)
+# Photo station case - v1 test bed (design)
 
 Date: 2026-11-05. Status: approved by the owner (2026-11-05).
 Related: `docs/2026-11-03-fotoallomas-design.md` (section 9, box sketch),
@@ -20,7 +20,7 @@ Goals:
 - The camera height and tilt angle can be adjusted between tests with a tool, in minutes.
 - The BLE antenna is close to the tag of a hen standing inside, and farther from the hens
   standing outside.
-- Survives weeks in a covered run: dust, humidity, ammonia, 42 °C in shade.
+- Survives weeks in a covered run: dust, humidity, ammonia, 42 degC in shade.
 
 Non-goals (v1):
 - PIR. Owner decision: in v1 only BLE triggers. The case has no PIR place.
@@ -38,25 +38,25 @@ Anti-goals (failure even if it works technically):
 
 ## 3. Constraints and facts
 
-- Printer: Bambu Lab P1S, 0.4 mm nozzle, build plate 256 × 256 mm. Material: PETG (PLA
-  softens at 42 °C). According to the hen-tag-enclosure repo, the 0.16 mm layer profile
+- Printer: Bambu Lab P1S, 0.4 mm nozzle, build plate 256 x 256 mm. Material: PETG (PLA
+  softens at 42 degC). According to the hen-tag-enclosure repo, the 0.16 mm layer profile
   worked well on this machine. The Bambu Studio CLI slicing check (`cad/slice_check.py`) can
   be read as a pattern.
-- Electronics: Seeed XIAO ESP32S3 Sense. The board is 20.95 × 17.78 mm. The two boards
+- Electronics: Seeed XIAO ESP32S3 Sense. The board is 20.95 x 17.78 mm. The two boards
   together are 15 mm high (wiki). The USB-C sticks out 1.53 mm past the end of the board.
   The microSD is on top of the expansion board. In the model, the card sticks out about
   1 mm past the expansion board. Details and uncertain values: `DIMENSIONS.md` section 1.
-- Camera: OV3660 (measured on our board, PID `0x3660`). Module 8 × 8 mm, lens Ø6.2 mm, total
-  height 5.3 mm. Field of view: 85° horizontal, 102° diagonal. The cable is 21.2 mm long, so
+- Camera: OV3660 (measured on our board, PID `0x3660`). Module 8 x 8 mm, lens D6.2 mm, total
+  height 5.3 mm. Field of view: 85 deg horizontal, 102 deg diagonal. The cable is 21.2 mm long, so
   the camera can be at most about 2 cm from the board.
-- Antenna: Seeed 2.4 GHz FPC ("2.4G A-02", the owner confirmed). Adhesive pad, 37.4 × 17.5 mm,
+- Antenna: Seeed 2.4 GHz FPC ("2.4G A-02", the owner confirmed). Adhesive pad, 37.4 x 17.5 mm,
   at most 1.8 mm thick. The cable is 65 mm. So the distance between the antenna and the board
-  is at most about 5–6 cm.
+  is at most about 5-6 cm.
 - Trigger and identification: BLE only. The tag is on the hen's back.
 - Power: 5 V / 2 A outdoor USB power supply, USB-C cable. The same cable is used for flashing.
 - Light: 5 V white LED strip (approx. 0.5 W) with a diffuser, around the camera window, so
   that it does not shine into the lens.
-- Place: run, covered place. Dust, humidity, ammonia, 42 °C in shade.
+- Place: run, covered place. Dust, humidity, ammonia, 42 degC in shade.
 - Hens: medium laying hybrids (approx. 2 kg, e.g. ISA Brown, Tetra).
 
 ## 4. Owner decisions (2026-11-05)
@@ -99,7 +99,7 @@ Anti-goals (failure even if it works technically):
 - Closed PETG box on the outer side of the front wall. Inside: the XIAO board, the LED strip
   driver (MOSFET, per the firmware design), the USB-C entry, one silica gel pocket.
 - **Camera head:** the front part of the module. It looks inward through the opening in the
-  front wall. The camera sits in a tiltable head, with fixed positions, approx. every 15°,
+  front wall. The camera sits in a tiltable head, with fixed positions, approx. every 15 deg,
   from horizontal downward. The camera cable is short (21.2 mm). So the XIAO board moves
   together with the head, or the head pivot is close to the board. The solution is up to the
   implementer, but the cable must not break and must not be under tension.
@@ -133,7 +133,7 @@ Anti-goals (failure even if it works technically):
   measurement is independent of the camera adjustment.
 - The holder can be set forward and back under the roof, in fixed positions or with a slotted
   hole, so that the best place can be found during the measurement.
-- Between the antenna and the module runs a 15–20 cm u.FL (IPEX) extension cable. This is a
+- Between the antenna and the module runs a 15-20 cm u.FL (IPEX) extension cable. This is a
   new part to purchase. The cable runs along the roof, guided by clips, out of the hen's reach.
 - No metal within 10 cm of the antenna (5.1).
 
@@ -145,8 +145,8 @@ Anti-goals (failure even if it works technically):
   calliper (section 7).
 - The bowl can be removed for washing. The holder cannot.
 - The placement of the holder (distance from the front wall) is up to the implementer. The
-  goal: the distance between the camera and the hen's head falls in the 20–30 cm range of the
-  firmware design, and the head fills the image. At an 85° horizontal field of view, the field
+  goal: the distance between the camera and the hen's head falls in the 20-30 cm range of the
+  firmware design, and the head fills the image. At an 85 deg horizontal field of view, the field
   of view is approx. 37 cm wide at 20 cm.
 
 ### 5.5 Designer decisions (the designer made them, the owner may override)
@@ -157,17 +157,17 @@ Anti-goals (failure even if it works technically):
   carriage. So the 21.2 mm camera cable does not move. The microSD and the plug also keep
   their fixed place inside the module. The USB-C cable runs loosely out of the module, in a
   loop, so that tilting and sliding do not pull on it.
-- **LED driver:** one AO3400 MOSFET on a small through-hole board (approx. 20 × 30 mm of space
+- **LED driver:** one AO3400 MOSFET on a small through-hole board (approx. 20 x 30 mm of space
   in the module), per the pin layout of the firmware design.
-- **The bowl follows the 20–30 cm rule.** "Directly in front of the front wall" means the bowl
+- **The bowl follows the 20-30 cm rule.** "Directly in front of the front wall" means the bowl
   is fixed in the strip in front of the front wall. The exact distance comes from the
-  20–30 cm camera–head distance (approx. 15 cm from the wall).
+  20-30 cm camera-head distance (approx. 15 cm from the wall).
 - **The lens is behind the plane of the front wall,** so that the hen does not peck the window.
 
 ### 5.6 Outputs
 
 - The Blender scene and the printable STL files (section 6).
-- The Blender scene shows an 85° horizontal camera pyramid and a hen-head placeholder. It shows
+- The Blender scene shows an 85 deg horizontal camera pyramid and a hen-head placeholder. It shows
   that, at the lower, middle and upper rail positions, the head is in the image. The owner does
   the physical test on the printed test bed.
 - The wooden structure drawing: panel sizes, board thickness, the cut-out in the front wall,
@@ -184,7 +184,7 @@ Anti-goals (failure even if it works technically):
 - Source and output: `hardware/case/station-case.blend`, one STL per printable part, for example
   `module-body.stl`, `module-lid.stl`, `camera-head.stl`, `rail.stl`, `bowl-holder.stl`,
   `window-frame.stl`. The names are up to the implementer.
-- Every printable part fits on the 256 × 256 mm build plate. Each prints without supports, or
+- Every printable part fits on the 256 x 256 mm build plate. Each prints without supports, or
   with minimal supports.
 - Fit tolerance: for the sliding and snap-fit parts, a test coupon is printed first, before the
   whole module (per the practice of the hen-tag-enclosure repo).
