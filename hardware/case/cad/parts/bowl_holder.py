@@ -14,17 +14,23 @@ TAB_ANGLES = (90.0, 210.0, 330.0)   # 120 degrees apart, none on the X axis
 SINK_D = 9.0         # countersink diameter at the top of the tab
 
 
+def bore_d(p, z):
+    """Bore diameter at height z: the bowl is a cone, so the bore follows it with p.clr."""
+    return p.bowl_d_base + (p.bowl_d_top - p.bowl_d_base) * z / p.bowl_h + 2 * p.clr
+
+
 def _hole_centres(p):
-    r = (p.bowl_d_base + 2) / 2 + p.ring_wall + TAB_OFFSET
+    r = bore_d(p, p.ring_h) / 2 + p.ring_wall + TAB_OFFSET
     return [(r * math.cos(math.radians(a)), p.bowl_y + r * math.sin(math.radians(a)))
             for a in TAB_ANGLES]
 
 
 def build(p):
-    inner_r = (p.bowl_d_base + 2) / 2
-    ring = mesh.cyl("bowl_holder", 2 * (inner_r + p.ring_wall), p.ring_h,
+    ring = mesh.cyl("bowl_holder", bore_d(p, p.ring_h) + 2 * p.ring_wall, p.ring_h,
                     (0, p.bowl_y, p.ring_h / 2))
-    ring_hole = mesh.cyl("ring_hole", 2 * inner_r, p.ring_h + 2, (0, p.bowl_y, p.ring_h / 2))
+    # Tapered bore, extended 1 mm past both faces along the same cone.
+    ring_hole = mesh.cone("ring_hole", bore_d(p, -1), bore_d(p, p.ring_h + 1), p.ring_h + 2,
+                          (0, p.bowl_y, p.ring_h / 2))
     pads = [mesh.cyl(f"pad{i}", 2 * TAB_R, TAB_T, (x, y, TAB_T / 2))
             for i, (x, y) in enumerate(_hole_centres(p))]
     mesh.union(ring, *pads)
@@ -47,7 +53,7 @@ def checks(p, ob):
     mid = p.ring_h / 2
     right = mesh.ray_hits(ob, (0, p.bowl_y, mid), (1, 0, 0))
     left = mesh.ray_hits(ob, (0, p.bowl_y, mid), (-1, 0, 0))
-    want = p.bowl_d_base + 2
+    want = bore_d(p, mid)
     if right is None or left is None or abs(right + left - want) > 0.1:
         got = None if right is None or left is None else right + left
         errs.append(f"inner diameter {got}, expected {want}")

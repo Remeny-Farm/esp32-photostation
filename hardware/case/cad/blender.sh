@@ -9,8 +9,12 @@ if [[ -z "$bin" ]]; then
   if [[ -x /Applications/Blender.app/Contents/MacOS/Blender ]]; then
     bin=/Applications/Blender.app/Contents/MacOS/Blender
   else
-    bin="$(command -v blender)"
+    bin="$(command -v blender || true)"
   fi
+fi
+if [[ -z "$bin" ]]; then
+  echo "blender.sh: Blender not found; install it or set BLENDER=/path/to/blender" >&2
+  exit 2
 fi
 exec "$bin" --background --factory-startup --python-exit-code 1 \
   --python "$here/$script" -- "$@"

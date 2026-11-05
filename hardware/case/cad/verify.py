@@ -174,6 +174,48 @@ def check_visibility(p, objs):
     report("head visible at every rail state", errs)
 
 
+def check_bowl(p, objs):
+    v = overlap(objs["ph_bowl"], objs["bowl_holder"])
+    report("bowl sits in its holder", [] if v < MAX_MM3 else [f"overlap {v:.1f} mm3"])
+
+
+CROP = 0.6   # central share of the image (in tangent space) that must be unobstructed
+
+
+def check_field(p, objs):
+    """Grid of rays over the frustum: the central crop must be clear of the front wall,
+    carriage, rails and the module itself; the blocked share of the frame is reported."""
+    obstacles = ([o for n, o in objs.items() if n.startswith("wood_") and n != "wood_floor"]
+                 + [objs["carriage"], objs["rail_L"], objs["rail_R"]]
+                 + [objs[n] for n in assembly.MODULE_PARTS])
+    th = math.tan(math.radians(p.hfov / 2))
+    tv = math.tan(math.radians(vfov_deg(p) / 2))
+    n = 24
+    errs = []
+    for state, z in RAIL_PIVOT_Z.items():
+        tilt = nearest_tilt(aim_tilt(p, z))
+        assembly.place(objs, p, state, tilt)
+        lens, fwd = lens_pose(p, z, tilt)
+        fwd = Vector(fwd)
+        up = Matrix.Rotation(math.radians(-tilt), 3, "X") @ Vector((0, 0, 1))
+        start = Vector(lens) + fwd * 0.5
+        blocked = crop_blocked = 0
+        for i in range(n):
+            for j in range(n):
+                u, v = 2 * i / (n - 1) - 1, 2 * j / (n - 1) - 1
+                d = (fwd + Vector((u * th, 0, 0)) + up * (v * tv)).normalized()
+                # Only obstacles within the first 60 mm block the view; the side walls
+                # and roof further in are the scene itself.
+                if any(mesh.ray_hits(ob, start, d, 60.0) is not None for ob in obstacles):
+                    blocked += 1
+                    crop_blocked += abs(u) <= CROP and abs(v) <= CROP
+        print(f"info field {state} tilt {tilt}: {100 * blocked / n / n:.0f}% of the frame "
+              f"blocked, {crop_blocked} rays in the central {CROP:.0%} crop")
+        if crop_blocked:
+            errs.append(f"{state} tilt {tilt}: {crop_blocked} rays blocked in the central crop")
+    report(f"central {CROP:.0%} of the image is clear at every rail state", errs)
+
+
 def check_frame_removal(p, objs):
     frame = objs["window_frame"]
     others = ([objs["carriage"], objs["rail_L"], objs["rail_R"], objs["module_body"]]
@@ -279,6 +321,8 @@ def main():
     check_interference(p, objs)
     check_placeholders(p, objs)
     check_visibility(p, objs)
+    check_field(p, objs)
+    check_bowl(p, objs)
     check_frame_removal(p, objs)
     check_metal(p, objs)
     check_standoff(p, objs)

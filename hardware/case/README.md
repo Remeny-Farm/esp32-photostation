@@ -29,7 +29,7 @@ orientation (x by y by z, mm).
 | `module_lid.stl` | 1 | Outer face down | 64 x 78 x 28.4 | Closes the rear. Holds the silica gel bag and pushes the sled to its stop. Louvres instead of a hood. |
 | `board_sled.stl` | 1 | Bottom edge down, plate upright | 58.6 x 7.2 x 26 | Carries the XIAO board on its front and the AO3400 perfboard on its rear. |
 | `window_frame.stl` | 1 | Front face down | 56 x 45.5 x 4 | Holds the acrylic pane and the LED diffuser skins. Slides down into the guides on the body. |
-| `bowl_holder.stl` | 1 | Flat, ring on the bed | 167 x 175 x 20 | Ring with three screw tabs. Fixes the bowl in one place. |
+| `bowl_holder.stl` | 1 | Flat, ring on the bed | 174.4 x 183.6 x 20 | Ring with three screw tabs. Its bore tapers with the bowl wall, so the bowl seats in it. Fixes the bowl in one place. |
 | `antenna_holder.stl` | 1 | Pocket side up | 50 x 130 x 4 | Plate under the roof for the FPC antenna. Slots let you move it back and forth. |
 | `cable_clip.stl` | 3 | Groove side up | 12 x 20 x 6 | Guides the u.FL extension cable along the roof. |
 | `coupon_rail.stl` | 1 | As exported | 53 x 40 x 9 | Fit coupon: rail slot and carriage tongue. |
@@ -103,7 +103,7 @@ Openings and drill positions. Measure each one from the edges named in the note.
 - `wood_roof`: u.FL hole D6 at (137, 22) (from the left edge, from the front edge).
 - `wood_roof`: antenna holder, 2 x D4.5 for M4 nylon bolts at (119, 312) and (155, 312) (from the left
   edge, from the front edge). Nylon only, no metal within 100 mm of the radiator.
-- `wood_floor`: bowl holder, 3 x pilot for wood screws at (137, 283), (62.5, 154) and (211.5, 154)
+- `wood_floor`: bowl holder, 3 x pilot for wood screws at (137, 287.3), (58.8, 151.8) and (215.2, 151.8)
   (from the left edge, from the front edge).
 
 `blender.sh build.py` prints the same list. If the code and this table differ, the code is right.

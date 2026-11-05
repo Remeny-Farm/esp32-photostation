@@ -101,7 +101,7 @@ def cut_notes(p):
     notes = [
         f"wood_front: opening {p.open_w:g} x {p.open_z1 - p.open_z0:g}, centred across, "
         f"from {p.open_z0:g} to {p.open_z1:g} above the bottom edge",
-        "wood_front: rail screws, 4 x pilot for 4.5 mm wood screws at "
+        "wood_front: rail screws, 4 x pilot for 4 mm wood screws at "
         + ", ".join(f"({hw + sx * p.rail_x:g}, {z:g})" for sx in (-1, 1) for z in feet)
         + " (from the left edge, from the bottom edge; outer face)",
         f"wood_roof: u.FL hole D{ROOF_HOLE_D:g} at ({hw + t:g}, {p.roof_hole_y + t:g}) "
@@ -110,7 +110,7 @@ def cut_notes(p):
         f"({hw + t - 18:g}, {p.antenna_y + t:g}) and ({hw + t + 18:g}, {p.antenna_y + t:g}) "
         "(from the left edge, from the front edge); nylon only, no metal within "
         f"{p.metal_keepout:g} mm of the radiator",
-        "wood_floor: bowl holder, 3 x pilot for 4.5 mm wood screws at "
+        "wood_floor: bowl holder, 3 x pilot for 4 mm wood screws at "
         + ", ".join(f"({x + hw + t:.1f}, {y + t:.1f})" for x, y in bowl._hole_centres(p))
         + " (from the left edge, from the front edge)",
     ]
