@@ -15,6 +15,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Mechanical reference dimensions for the case (`hardware/case/ref/DIMENSIONS.md`).
+- The v1 case test bed in `hardware/case/`: parametric Blender model, printable STLs, assembly checks
+  and a slicer check.
 
 ## 0.3.0 - 2026-11-05
 

@@ -66,6 +66,16 @@ Window frame and guides (shared by Task 3 and Task 4, exact):
 - Guides on the body: `|x| 28.3 … 31.3`, `y +5 … +10.5`, `z −38.3 … +4`; lip `|x| 26.5 … 31.3`, `y +9.3 … +10.5`; bottom stop `x ±31.3`, `y +5 … +9.3`, `z −40.3 … −38.3`. The guides end at `z +4`, not at the body top: at 45° tilt anything higher touches the wall.
 - The frame slides out upwards at tilts 0 and 15; at 30 and 45 the operator first sets the tilt to 0 (one index screw).
 
+### Revised in Task 7 (authoritative: `hardware/case/cad/params.py` and the part modules)
+
+Where this section and the ones above differ, this one wins.
+
+- Carriage tongue `tongue_len = 18`; rail slot Z `73.5 … 286.5`; `rail_foot = 18` (rail length 249).
+- Front-wall opening `open_w = 80`, `open_z1 = 375` (was 100 and 355): 16 mm of wood stays beside the rail screws, and the window frame lifts out at the high rail position at tilt 15.
+- Window frame grip tab height `grip z = 3.5` (1 mm wall standoff at 45°).
+- The carriage has no top bar: the module ties the cheeks together through the pivot screws. It prints upright, Z up, on its bottom bar.
+- Print orientations: module body top face down (front face down cannot work, the guides stand proud); lid outer face down, with 45° louvres instead of an outside hood; board sled bottom edge down, plate upright.
+
 ---
 
 ### Task 1: Parameters, kinematics and Blender plumbing
