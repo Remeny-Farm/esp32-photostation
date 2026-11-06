@@ -1,7 +1,8 @@
 """Camera module body (module local frame, see params.py).
 
 A five-sided PETG box, open at the rear (closed by module_lid). The front carries the lens
-bore and shroud and the guides of the window frame; the side walls carry
+bore and shroud and the guides of the window frame outside, and the camera seat inside (the
+camera module snaps into it from the rear); the side walls carry
 the pivot and index bosses and the grooves the board sled slides in; the bottom has the USB-C
 hole, vents and the zip-tie anchor; the top has the u.FL slot.
 
@@ -21,6 +22,7 @@ import bpy
 from mathutils import Euler
 
 import mesh
+from params import camera_box, usb_center_y
 
 PRINT_ROT = (180.0, 0.0, 0.0)
 COUNT = 1
@@ -37,8 +39,16 @@ def inner_x(p):
     return p.mod_x - p.wall
 
 
-def usb_center_y(p):
-    return p.board_back_y + 1.25 + 2.1
+def guides(p):
+    """Window frame guides around the frame (x +-frame_w/2, y mod_y0..+frame_d, bottom at
+    frame_top_z - frame_h), each gap p.clr: guide inner x, guide outer x, lip inner x,
+    lip back y, guide front y, stop seat z."""
+    fx = p.frame_w / 2
+    gx0 = fx + p.clr
+    lip_y0 = p.mod_y0 + p.frame_d + p.clr
+    return {"gx0": gx0, "gx1": gx0 + p.guide_w, "lip_x0": fx - p.guide_lip,
+            "lip_y0": lip_y0, "gy1": lip_y0 + p.guide_lip_t,
+            "gz0": p.frame_top_z - p.frame_h - p.clr}
 
 
 def lid_bosses(p):
@@ -178,22 +188,63 @@ def _front(p):
     y0 = p.mod_y0
     lx, _, lz = p.lens
     parts = []
-    gy1, lip_y0 = 10.5, 9.3
-    gz0, gz1 = -38.3, p.frame_top_z
-    guides = None
+    g = guides(p)
+    gx0, gx1, gy1, lip_y0, gz0 = g["gx0"], g["gx1"], g["gy1"], g["lip_y0"], g["gz0"]
+    gz1 = p.frame_top_z
+    rails = None
     for s in (-1, 1):
-        g = mesh.box_span("guide", (s * 28.3, s * 31.3), (y0 - E, gy1), (gz0, gz1))
-        mesh.union(g, mesh.box_span("lip", (s * 26.5, s * 31.3), (lip_y0, gy1), (gz0, gz1)))
-        guides = g if guides is None else mesh.union(guides, g)
+        r = mesh.box_span("guide", (s * gx0, s * gx1), (y0 - E, gy1), (gz0, gz1))
+        mesh.union(r, mesh.box_span("lip", (s * g["lip_x0"], s * gx1), (lip_y0, gy1), (gz0, gz1)))
+        rails = r if rails is None else mesh.union(rails, r)
     # 45 deg tops: at the face the guides still end at frame_top_z, the lip ends lower.
-    mesh.cut(guides, prism("guide_top", [(y0 - E / 2, gz1 + E / 2), (gy1 + 1, gz1 - (gy1 + 1 - y0)),
-                                         (gy1 + 1, gz1 + 10), (y0 - E / 2, gz1 + 10)],
-                           "X", -p.mod_x - 1, p.mod_x + 1))
-    parts.append(guides)
+    mesh.cut(rails, prism("guide_top", [(y0 - E / 2, gz1 + E / 2), (gy1 + 1, gz1 - (gy1 + 1 - y0)),
+                                        (gy1 + 1, gz1 + 10), (y0 - E / 2, gz1 + 10)],
+                          "X", -p.mod_x - 1, p.mod_x + 1))
+    parts.append(rails)
     # Frame stop: a 1 mm flat seat, then 45 deg under it (it points down in print).
     parts.append(prism("stop", [(y0 - E, gz0), (y0 + 1.0, gz0), (lip_y0, gz0 - (lip_y0 - y0 - 1.0)),
-                                (y0 - E, gz0 - (lip_y0 - y0 - 1.0))], "X", -31.3, 31.3))
+                                (y0 - E, gz0 - (lip_y0 - y0 - 1.0))], "X", -gx1, gx1))
     parts.append(prism("shroud", teardrop(p.shroud_od / 2, lx, lz), "Y", y0 - E, y0 + p.shroud_h))
+    return parts
+
+
+CAM_WALL = 1.2   # seat plate rim and arm thickness (3 lines)
+CAM_LIP = 0.3    # lip reach into the pocket: 0.2 over the module edge at the press fit
+CAM_GAP = 0.1    # play between the module rear face and the lips
+BORE_CH = 0.5    # lead-in chamfer of the lens bore on the seat face
+
+
+def cam_seat(p):
+    """Camera seat numbers on the camera_box pose: pocket half-width, seat face y (the
+    holder front), lip retaining face y (behind the holder rear), arm rear end y."""
+    (x0, x1), (y0, y1), (z0, z1) = camera_box(p)
+    lip_y = y0 - CAM_GAP
+    return {"cx": (x0 + x1) / 2, "cz": (z0 + z1) / 2, "z0": z0, "z1": z1,
+            "px": (x1 - x0) / 2 + p.press, "seat_y": y1, "lip_y": lip_y,
+            "arm_y": lip_y - CAM_LIP}
+
+
+def _camera_seat(p):
+    """Seat for the camera module behind the lens bore. Without it the module hangs on its FPC
+    and only the bore (0.2 mm play on the barrel) locates it, so nothing holds the pose the
+    field-of-view checks assume. A plate on the front wall inner face stops the holder front
+    at its pose; two side arms locate it across at a press fit and snap two lips behind its
+    rear face. The arm tops fall at 45 deg towards the rear: that side points down in print."""
+    c = cam_seat(p)
+    cx, cz, z0, z1, px = c["cx"], c["cz"], c["z0"], c["z1"], c["px"]
+    out = px + CAM_WALL
+    yi = p.mod_y0 - p.wall
+    parts = [mesh.box_span("cam_seat", (cx - out, cx + out), (c["seat_y"], yi + E),
+                           (cz - out, cz + out))]
+    ya, yr = c["arm_y"], c["seat_y"] + E
+    z_rear = z1 - (yr - ya)
+    for s in (-1, 1):
+        parts.append(prism("cam_arm", [(yr, z0), (yr, z1), (ya, z_rear), (ya, z0)], "X",
+                           *sorted((cx + s * px, cx + s * out))))
+        # Lead-in on the rear side: the holder pushes the arms apart, then the lips snap back.
+        parts.append(prism("cam_lip", [(cx + s * (px + E), c["lip_y"]),
+                                       (cx + s * (px - CAM_LIP), c["lip_y"]),
+                                       (cx + s * (px + E), ya)], "Z", z0, z_rear))
     return parts
 
 
@@ -210,7 +261,7 @@ def _zip_bar(p):
 
 def _cuts(p, vent_y0):
     ix = inner_x(p)
-    y0, yi = p.mod_y0, p.mod_y0 - p.wall
+    y0 = p.mod_y0
     lx, _, lz = p.lens
     c = []
     # Sled grooves behind the stop.
@@ -221,11 +272,12 @@ def _cuts(p, vent_y0):
                           (s * (p.mod_x - (8.0 + p.wall) / 2), 0, 0), "X", 32))
         c.append(mesh.cyl("index_pilot", p.index_pilot_d, 6.0 + p.wall + 2,
                           (s * (p.mod_x - (6.0 + p.wall) / 2), -p.index_r, 0), "X", 32))
-    # Lens bore through wall and shroud, 45 deg entry chamfer on the inner face.
+    # Lens bore through seat, wall and shroud, 45 deg entry chamfer on the seat face; the
+    # chamfer stays inside the holder outline so the holder front still seats.
     c.append(mesh.cyl("bore", p.lens_bore_d, 10.0, (lx, y0, lz), "Y"))
-    ch = 1.0
-    c.append(mesh.cone("bore_chamfer", p.lens_bore_d + 2 * (ch + E), p.lens_bore_d, ch + E,
-                       (lx, yi + (ch - E) / 2, lz), "Y"))
+    sy = cam_seat(p)["seat_y"]
+    c.append(mesh.cone("bore_chamfer", p.lens_bore_d + 2 * (BORE_CH + E), p.lens_bore_d,
+                       BORE_CH + E, (lx, sy + (BORE_CH - E) / 2, lz), "Y"))
     # Bottom: USB-C hole and vents.
     uy = usb_center_y(p)
     hx, hy = p.usb_hole
@@ -252,7 +304,7 @@ def build(p):
                        (p.mod_z0, p.mod_z1))
     mesh.cut(ob, prism("cavity", cavity(p), "Y", p.mod_y1 - 1, p.mod_y0 - p.wall))
     bar, bar_y1 = _zip_bar(p)
-    mesh.union(ob, *_sides(p), *_front(p), bar)
+    mesh.union(ob, *_sides(p), *_front(p), *_camera_seat(p), bar)
     mesh.cut(ob, *_cuts(p, bar_y1))
     return ob
 
@@ -282,9 +334,27 @@ def checks(p, ob):
     radial("lens bore", (lx, ly, lz), X + Z, p.lens_bore_d / 2)
     if ray((lx, 30, lz), (0, -1, 0)) is not None:
         errs.append("lens bore is not open on axis")
-    got = ray((lx, p.mod_y0 - p.wall + 0.2, lz), (1, 0, 0))
-    if got is None or got < p.lens_bore_d / 2 + 0.5:
-        errs.append(f"no inner entry chamfer on the lens bore ({got})")
+    cs = cam_seat(p)
+    got = ray((lx, cs["seat_y"] + 0.2, lz), (1, 0, 0))
+    if got is None or got < p.lens_bore_d / 2 + 0.2:
+        errs.append(f"no entry chamfer on the lens bore at the camera seat ({got})")
+
+    # Camera seat at the ph_camera pose: the holder front face meets the seat plate at all four
+    # corners, the side arms touch its sides at the press fit, and the lips stand behind its
+    # rear face within CAM_GAP, so the module can move neither forward, back nor across.
+    (cx0, cx1), (cy0, cy1), (cz0, cz1) = camera_box(p)
+    cx, cz = (cx0 + cx1) / 2, (cz0 + cz1) / 2
+    k = (cx1 - cx0) / 2 - 0.5
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            near(f"camera seat face at corner ({sx:+d}, {sz:+d})",
+                 ray((cx + sx * k, cy0 - 3, cz + sz * k), (0, 1, 0)), cy1 - (cy0 - 3))
+    for s in (-1, 1):
+        near(f"camera arm x={s:+d}", ray((cx, (cy0 + cy1) / 2, cz - 2.5), (s, 0, 0)),
+             (cx1 - cx0) / 2 + p.press)
+        got = ray((cx + s * ((cx1 - cx0) / 2 - 0.1), cy0 + 0.5, cz0 + 1.0), (0, -1, 0))
+        if got is None or got > 0.5 + CAM_GAP + 0.01:
+            errs.append(f"no lip behind the camera rear face at x={s:+d} ({got})")
 
     # Pivot and index pilots on both sides, and the bosses they sit in.
     for s in (-1, 1):
@@ -331,6 +401,18 @@ def checks(p, ob):
         for z in (p.sled_z[0] + 1.3, p.sled_z[1] - 1.3):
             near(f"sled rib x={s:+d} z={z:g}", ray((s * 25, -20, z), (s, 0, 0)), ix - RIB - 25)
 
+    # Window frame guides: p.clr gap beside the frame edge, in front of the frame and under it.
+    g = guides(p)
+    fx = p.frame_w / 2
+    yf = p.mod_y0 + p.frame_d / 2
+    for s in (-1, 1):
+        near(f"guide gap beside the frame x={s:+d}", ray((s * (fx - 0.5), yf, -20), (s, 0, 0)),
+             0.5 + p.clr)
+        near(f"guide lip gap in front of the frame x={s:+d}",
+             ray((s * (fx - 0.5), p.mod_y0 + 1.0, -20), (0, 1, 0)), p.frame_d + p.clr - 1.0)
+    near("frame stop gap under the frame", ray((20, p.mod_y0 + 0.5, -30), (0, 0, -1)),
+         -30 - g["gz0"])
+
     # Lid screw pilots, 8 deep from the rear face.
     for bx, bz in lid_bosses(p):
         radial(f"lid pilot ({bx:g}, {bz:g})", (bx, p.mod_y1 + 4, bz), X + Z,
@@ -340,7 +422,7 @@ def checks(p, ob):
     # Envelope: the box, plus the guides in front and the zip-tie bar below.
     lo, hi = mesh.bbox(ob)
     for name, got, lim, sign in (("min x", lo.x, -p.mod_x, -1), ("max x", hi.x, p.mod_x, 1),
-                                 ("min y", lo.y, p.mod_y1, -1), ("max y", hi.y, 10.5, 1),
+                                 ("min y", lo.y, p.mod_y1, -1), ("max y", hi.y, g["gy1"], 1),
                                  ("min z", lo.z, p.mod_z0 - ZIP_H, -1),
                                  ("max z", hi.z, p.mod_z1, 1)):
         if (got - lim) * sign > 1e-3:

@@ -90,7 +90,7 @@ def checks(p, ob):
     ym = y0 - p.sled_t / 2
     a, b = ray((40, ym, -21), (-1, 0, 0)), ray((-40, ym, -21), (1, 0, 0))
     near("sled width = groove width - 2 clr", None if a is None or b is None else 80 - a - b,
-         2 * body.inner_x(p) - 2 * 0.3)
+         2 * body.inner_x(p) - 2 * p.clr)
 
     if lo.z < p.sled_z[1] - 1e-3:
         errs.append(f"sled reaches z {lo.z:.2f}, below {p.sled_z[1]:g} (USB-C overmould)")

@@ -78,7 +78,7 @@ def coupon_rail(p):
 
 def coupon_window(p):
     wf = load("window_frame")
-    y_lo = 10.5 - STRIP_DEPTH
+    y_lo = body.guides(p)["gy1"] - STRIP_DEPTH
     a = _slice("module_body", p, (-p.mod_x - 1, p.mod_x + 1), (y_lo, 12.0),
                (p.frame_top_z - p.frame_h - 6.0, p.mod_z1 + 1), body.PRINT_ROT)
     z0 = p.frame_top_z - p.frame_h

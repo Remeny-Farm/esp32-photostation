@@ -112,7 +112,8 @@ def checks(p, ob):
 
     # Shroud channel: floor at shroud_h + clr, open at the bottom, joined to the pocket.
     floor = _d(ob, (0, y0 - 5, -34.0), (0, 1, 0))
-    expect("shroud channel floor", None if floor is None else floor - 5 + y0, y0 + 1.8, 0.05)
+    expect("shroud channel floor", None if floor is None else floor - 5 + y0,
+           y0 + p.shroud_h + p.clr, 0.05)
     if _d(ob, (0, y0 + 0.5, z1 - p.frame_h - 10), (0, 0, 1)) is None:
         errs.append("shroud channel does not open into the pane pocket")
     else:

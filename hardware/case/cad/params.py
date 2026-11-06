@@ -86,11 +86,15 @@ class P:
     board_z1: float = -12.0      # u.FL end (top)
     stack_h: float = 15.0
     usbc_overhang: float = 1.53
+    # USB-C receptacle span above the main PCB bottom face: the model has it at Y 0.01..4.21
+    # with the PCB bottom at Y -0.25 (mid-mount, it sinks into the board).
+    usbc_y: tuple[float, float] = (0.26, 4.46)
     usb_mould: Vec3 = (12.4, 6.5, 25.0)  # width, thickness, length (measure)
     usb_cable_d: float = 4.5     # measure
     usb_hole: tuple[float, float] = (13.5, 7.5)
     ufl_slot_w: float = 3.0
-    cam_module: Vec3 = (8.0, 5.3, 8.0)
+    cam_module: Vec3 = (8.0, 5.3, 8.0)   # x, depth lens front to rear face, z
+    cam_barrel: float = 2.0      # lens barrel length ahead of the module's square holder
     silica: Vec3 = (30.0, 10.0, 20.0)
     sled_t: float = 2.0
     sled_rib_y: tuple[float, float] = (-10.8, -13.2)
@@ -163,6 +167,29 @@ def local_to_world(p: P, pt: Vec3, pivot_z: float, tilt: float) -> Vec3:
 
 def lens_pose(p: P, pivot_z: float, tilt: float) -> tuple[Vec3, Vec3]:
     return local_to_world(p, p.lens, pivot_z, tilt), _rot((0.0, 1.0, 0.0), tilt)
+
+
+def usb_center_y(p: P) -> float:
+    """Module y of the USB-C receptacle centre. The bottom hole and the plug placeholder both
+    use it, so they cannot drift apart."""
+    return p.board_back_y + (p.usbc_y[0] + p.usbc_y[1]) / 2
+
+
+def usb_plug_box(p: P) -> tuple[tuple[float, float], ...]:
+    """(x, y, z) spans of the USB-C plug overmould, plugged in, in the module frame."""
+    mw, mt, ml = p.usb_mould
+    cy = usb_center_y(p)
+    z_top = p.board_z1 - p.board_len - p.usbc_overhang   # receptacle mouth
+    return (-mw / 2, mw / 2), (cy - mt / 2, cy + mt / 2), (z_top - ml, z_top)
+
+
+def camera_box(p: P) -> tuple[tuple[float, float], ...]:
+    """(x, y, z) spans of the camera module's square holder behind the lens barrel, at the
+    pose the field-of-view checks assume; the body's camera seat is built on it."""
+    lx, ly, lz = p.lens
+    cw, cd, ch = p.cam_module
+    return ((lx - cw / 2, lx + cw / 2), (ly - cd, ly - p.cam_barrel),
+            (lz - ch / 2, lz + ch / 2))
 
 
 def head_center(p: P) -> Vec3:

@@ -19,7 +19,7 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
 import mesh  # noqa: E402
-from params import P, head_center  # noqa: E402
+from params import P, camera_box, head_center, usb_plug_box  # noqa: E402
 
 COLLECTION = "placeholders"
 
@@ -56,29 +56,25 @@ def build_module_parts(p: P):
     sense_top = z_top - 0.30
     sense = mesh.box_span("ph_xiao_sense", (-16.78 / 2, 16.78 / 2), (sense_y, sense_y + pcb_t),
                           (sense_top - 14.68, sense_top))
-    usb_y1 = y0 + pcb_t + 4.2
     usbc_z0 = z_bot - p.usbc_overhang
-    usbc = mesh.box_span("ph_usbc", (-8.94 / 2, 8.94 / 2), (y0 + pcb_t, usb_y1), (usbc_z0, usbc_z0 + 7.3))
+    usbc = mesh.box_span("ph_usbc", (-8.94 / 2, 8.94 / 2), (y0 + p.usbc_y[0], y0 + p.usbc_y[1]),
+                         (usbc_z0, usbc_z0 + 7.3))
     ufl = mesh.box_span("ph_ufl", (-1.5, 1.5), (y0 + pcb_t, y0 + 2 * pcb_t), (z_top - 3.5, z_top - 0.5))
     mesh.union(xiao, sense, usbc, ufl)
 
     # Camera module behind the lens: 8 x 8 holder, then the lens barrel to the lens front.
     lx, ly, lz = p.lens
-    depth = p.cam_module[1]
-    cw, ch = p.cam_module[0], p.cam_module[2]
-    holder_y1 = ly - 2.0
-    cam = mesh.box_span("ph_camera", (lx - cw / 2, lx + cw / 2), (ly - depth, holder_y1),
-                        (lz - ch / 2, lz + ch / 2))
+    cam = mesh.box_span("ph_camera", *camera_box(p))
+    holder_y1 = camera_box(p)[1][1]
     lens = mesh.cyl("ph_lens", 6.2, ly - holder_y1, (lx, (ly + holder_y1) / 2, lz), axis="Y")
     mesh.union(cam, lens)
 
     # USB-C overmould directly below the receptacle, then the cable continuing down.
-    mw, mt, ml = p.usb_mould
-    cx, cy = 0.0, (y0 + pcb_t + usb_y1) / 2
-    mould = mesh.box_span("ph_usb", (cx - mw / 2, cx + mw / 2), (cy - mt / 2, cy + mt / 2),
-                          (usbc_z0 - ml, usbc_z0))
+    mx, my, mz = usb_plug_box(p)
+    mould = mesh.box_span("ph_usb", mx, my, mz)
+    cx, cy = sum(mx) / 2, sum(my) / 2
     cable_len = 40.0
-    cable = mesh.cyl("ph_usb_cable", p.usb_cable_d, cable_len, (cx, cy, usbc_z0 - ml - cable_len / 2))
+    cable = mesh.cyl("ph_usb_cable", p.usb_cable_d, cable_len, (cx, cy, mz[0] - cable_len / 2))
     mesh.union(mould, cable)
 
     return _collect([xiao, cam, mould])

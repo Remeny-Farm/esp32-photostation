@@ -9,7 +9,10 @@ The test bed is built for one medium laying hen (about 2 kg). The corridor is a 
 wide and 400 mm high inside. A bait bowl on the floor holds the hen's head in front of the camera.
 The camera looks through an opening in the front wall.
 
-v1 has no PIR. Only BLE starts a visit, so the case has no PIR mount.
+The case follows the owner decision that only BLE triggers a visit, so it has no PIR mount. The
+current firmware still opens a visit only on a PIR edge. Until issue
+[#6](https://github.com/Remeny-Farm/esp32-photostation/issues/6) lands, the test bed takes no
+automatic photos without a PIR.
 
 Lighting is external: the light is not part of the station or of this case, and it must not
 shine into the lens.
@@ -28,7 +31,7 @@ orientation (x by y by z, mm).
 |---|---|---|---|---|
 | `rail.stl` | 2 | Front face down, long axis flat | 24 x 249 x 9 | Vertical rail on the outside of the front wall. A slot guides the carriage tongue and the M5 bolt. Tick marks every 10 mm on both sides of the slot, symmetric about the middle, so one print serves both rails. |
 | `carriage.stl` | 1 | Upright, Z up, bottom bar on the bed | 136 x 28.5 x 102 | Rides both rails. Its two cheeks hold the module on the pivot and on the tilt index holes. |
-| `module_body.stl` | 1 | Top face down | 64 x 49.5 x 81 | Box for the camera and the electronics. Open at the rear. |
+| `module_body.stl` | 1 | Top face down | 64 x 49.5 x 81 | Box for the camera and the electronics. Open at the rear. A seat behind the lens bore holds the camera module. |
 | `module_lid.stl` | 1 | Outer face down | 64 x 78 x 28.4 | Closes the rear. Holds the silica gel bag and pushes the sled to its stop. Louvres instead of a hood. |
 | `board_sled.stl` | 1 | Bottom edge down, plate upright | 58.6 x 4.4 x 26 | Carries the XIAO board on its front. |
 | `window_frame.stl` | 1 | Front face down | 56 x 45.5 x 4 | Holds the acrylic pane. Slides down into the guides on the body. |
@@ -122,22 +125,25 @@ Openings and drill positions. Measure each one from the edges named in the note.
 3. Push the carriage onto the two bolts. The tongues enter the slots. Add the washers and the wing
    nuts, but do not tighten them.
 4. Put the XIAO board into the pocket on the front of the sled.
-5. Slide the sled into the grooves in the body from the rear, until it stops. Leave the USB-C hole
-   at the bottom free.
-6. Put the silica gel bag into the cage of the lid. Fit the lid with the two M3 screws.
-7. Press the acrylic pane into the window frame. Slide the frame down into the guides on the body
+5. Reach into the open rear of the body. Push the camera module, lens first, into the seat behind
+   the lens bore until it clicks behind the two side lips. The lens barrel enters the bore and
+   the square holder rests on the seat face. The FPC leaves at the top or the bottom of the seat.
+6. Slide the sled into the grooves in the body from the rear, until it stops. Fold the camera FPC
+   so that it does not pull the camera. Leave the USB-C hole at the bottom free.
+7. Put the silica gel bag into the cage of the lid. Fit the lid with the two M3 screws.
+8. Press the acrylic pane into the window frame. Slide the frame down into the guides on the body
    front, from above.
-8. Hold the module between the carriage cheeks. Fit the two M4 pivot screws into the side bosses.
-9. Fit one M3 index screw through the cheek hole for the tilt you want (0, 15, 30 or 45 degrees).
-10. Fit the antenna holder under the roof with the two M4 nylon bolts and nylon wing nuts. Stick the
+9. Hold the module between the carriage cheeks. Fit the two M4 pivot screws into the side bosses.
+10. Fit one M3 index screw through the cheek hole for the tilt you want (0, 15, 30 or 45 degrees).
+11. Fit the antenna holder under the roof with the two M4 nylon bolts and nylon wing nuts. Stick the
     FPC antenna into its pocket.
-11. Run the u.FL extension cable from the module top slot, up outside the front wall, over the roof
+12. Run the u.FL extension cable from the module top slot, up outside the front wall, over the roof
     and through the D6 roof hole. Lay it along the underside of the roof in the three clips to the
-    antenna holder.
-12. Bring the USB-C cable up through the bottom hole of the module. Fix it to the anchor bar with
+    antenna holder: the coax lies in the clip groove and the clip face sits flat on the roof.
+13. Bring the USB-C cable up through the bottom hole of the module. Fix it to the anchor bar with
     the zip tie. Let it hang in a drip loop below the anchor.
-13. Fit the bowl holder on the floor with three wood screws. Put the bowl into it.
-14. Set the camera height and tilt (next section) and tighten the wing nuts.
+14. Fit the bowl holder on the floor with three wood screws. Put the bowl into it.
+15. Set the camera height and tilt (next section) and tighten the wing nuts.
 
 ## Setting the camera
 
@@ -175,6 +181,10 @@ To clean the window, lift the window frame straight up out of its guides.
   The opening bevel keeps the lower corners of the central 60% clear at the high position.
 - The window frame lifts out only at tilt 15 or less.
 - The u.FL cable length is 486 to 676 mm, not 15 to 20 cm (see above).
+- The camera seat is built on the model's camera size (8 x 8 holder, D6.2 barrel 2 mm long). The
+  lips overlap the holder by only 0.2 mm. Check the snap on the real module; if it is loose or the
+  module differs (the OV5640 is 8.5 x 8.5), change `cam_module` and `cam_barrel` in
+  `cad/params.py` and rebuild.
 
 ## Measure before printing
 

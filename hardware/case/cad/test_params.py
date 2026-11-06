@@ -7,7 +7,8 @@ import math
 import unittest
 
 from params import (P, RAIL_PIVOT_Z, TILTS, aim_tilt, antenna_cable_mm, head_in_fov,
-                    head_center, lens_pose, nearest_tilt, rail_length, vfov_deg)
+                    head_center, lens_pose, nearest_tilt, rail_length, usb_center_y,
+                    usb_plug_box, vfov_deg)
 
 p = P()
 
@@ -79,6 +80,18 @@ class Fit(unittest.TestCase):
         # screw holes (D wood_screw_d at x = +-rail_x) need 5 mm of plywood beside it.
         wood = p.rail_x - p.wood_screw_d / 2 - (p.open_w / 2 + p.open_bevel)
         self.assertGreaterEqual(wood, 5.0)
+
+    def test_usb_receptacle_centre(self):
+        # DIMENSIONS.md: receptacle Y 0.01..4.21, main PCB bottom Y -0.25, so its centre is
+        # 2.36 above the PCB bottom; the bottom hole and the plug placeholder share it.
+        self.assertAlmostEqual(usb_center_y(p) - p.board_back_y, 2.36)
+        (x0, x1), (y0, y1), _ = usb_plug_box(p)
+        hx, hy = p.usb_hole
+        cy = usb_center_y(p)
+        self.assertGreaterEqual(hx / 2 - x1, p.clr)
+        self.assertGreaterEqual(x0 + hx / 2, p.clr)
+        self.assertGreaterEqual(cy + hy / 2 - y1, p.clr)
+        self.assertGreaterEqual(y0 - (cy - hy / 2), p.clr)
 
     def test_antenna_cable_reported(self):
         # The spec assumed a 15-20 cm u.FL extension; the real route is longer.

@@ -19,7 +19,7 @@ import assembly  # noqa: E402
 import coupon  # noqa: E402
 import mesh  # noqa: E402
 from params import (P, RAIL_PIVOT_Z, TILTS, aim_tilt, head_center, head_in_fov,  # noqa: E402
-                    lens_pose, nearest_tilt, vfov_deg)
+                    lens_pose, nearest_tilt, usb_plug_box, vfov_deg)
 from parts import PARTS, load  # noqa: E402
 
 STL = HERE.parent / "stl"
@@ -147,6 +147,25 @@ def check_placeholders(p, objs):
             if v >= MAX_MM3:
                 errs.append(f"{name} meets {s.name}: {v:.2f} mm3")
     report("placeholders inside the module", errs)
+
+
+def check_usb_path(p, objs):
+    """The USB-C plug goes in from below: its overmould (usb_plug_box) swept straight up from
+    under the module to the receptacle must meet no module part. check_placeholders cannot
+    see this, because the plugged-in overmould ends above the bottom wall and only the cable
+    passes the hole; a hole that drifts off the receptacle axis shows here."""
+    assembly.place(objs, p, "mid", 0)
+    (x0, x1), (y0, y1), (_, z1) = usb_plug_box(p)
+    path = mesh.box_span("usb_plug_path", (x0, x1), (y0, y1), (p.mod_z0 - 10.0, z1))
+    path.parent = objs["module_pivot"]
+    bpy.context.view_layer.update()
+    errs = []
+    for n in assembly.MODULE_PARTS:
+        v = overlap(path, objs[n])
+        if v >= MAX_MM3:
+            errs.append(f"plug path meets {n}: {v:.2f} mm3")
+    bpy.data.objects.remove(path, do_unlink=True)
+    report("USB-C plug passes the bottom hole to the receptacle", errs)
 
 
 def check_visibility(p, objs):
@@ -358,6 +377,7 @@ def main():
     objs = assembly.build(p)
     check_interference(p, objs)
     check_placeholders(p, objs)
+    check_usb_path(p, objs)
     check_visibility(p, objs)
     check_field(p, objs)
     check_screw_wood(p, objs)
