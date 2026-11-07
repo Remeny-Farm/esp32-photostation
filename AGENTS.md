@@ -27,22 +27,26 @@ License: MIT.
 - `tools/`: host Python tools (stdlib plus pyserial): `mock_server.py` (the upload server for
   tests), `provision.py`, `serial_run.py`. Run them with `python -I` so no sibling module is
   imported by accident.
-- `hardware/case/`: the 3D-printed enclosure (future work).
+- `hardware/case/`: the v1 case test bed. `cad/` holds the parametric Blender scripts (`params.py` is
+  host-tested); `stl/` and `station-case.blend` are generated, never edited by hand.
 - `docs/`: design, protocol and bench documents.
 
 ## Checks to run
 
-Run all three before a pull request; CI runs the same.
+Run all four before a pull request; CI runs the same.
 
 ```sh
 bash firmware/station/test/run.sh
 (cd tools && python3 -m unittest test_mock_server)
 arduino-cli compile --profile xiao_esp32s3 firmware/station
+python3 -m unittest discover -s hardware/case/cad -p 'test_*.py'
 ```
 
 `bash firmware/station/test/run.sh [name]` runs one suite (`ident`, `policy`, `record`, `visit`).
 Changes to camera, SD, BLE, Wi-Fi or the uploader also need a board run; see
 [docs/bench-testing.md](docs/bench-testing.md).
+Geometry changes under `hardware/case/cad/` also need `hardware/case/cad/blender.sh build.py` and
+`hardware/case/cad/blender.sh verify.py` (Blender 5.2; CI runs only the host tests).
 
 ## Rules
 

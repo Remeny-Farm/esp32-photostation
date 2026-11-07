@@ -50,7 +50,7 @@ Wiring, pins and the GPIO conflicts are in [docs/hardware.md](docs/hardware.md).
 | `firmware/sdhealth/` | Bench sketch: microSD read/write check |
 | `tools/` | `provision.py` (writes secrets to the board), `mock_server.py` (local upload server), `serial_run.py` |
 | `docs/` | Architecture, protocol, tag protocol, hardware, bench testing |
-| `hardware/case/` | The 3D-printed case (not yet published) |
+| `hardware/case/` | The v1 case test bed: printable STLs plus the parametric Blender source |
 
 ## Quick start
 
@@ -93,8 +93,9 @@ a station on a bench; it is not a production backend.
 
 ## Status
 
-Version 0.3.0, first public release. Verified on one board. The 3D-printed case is not yet
-published. Expect rough edges around other camera modules and other ESP32 boards.
+Version 0.3.0, first public release. Verified on one board. The v1 case test bed is in
+[hardware/case/](hardware/case/): printable STLs plus the parametric Blender source. Expect
+rough edges around other camera modules and other ESP32 boards.
 
 ## Contributing, security, license
 
